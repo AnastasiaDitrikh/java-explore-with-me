@@ -28,7 +28,7 @@ public class StatsRepositoryImpl implements StatsRepository {
         if (!request.getUris().isEmpty()) {
             query += createUrisQuery(request.getUris());
         }
-        query += "GROUP BY app, uri ORDER BY hits DESC";
+        query += " GROUP BY app, uri ORDER BY hits DESC";
         return jdbcTemplate.query(query, viewStatsMapper, request.getStart(), request.getEnd());
     }
 
@@ -38,19 +38,14 @@ public class StatsRepositoryImpl implements StatsRepository {
         if (!request.getUris().isEmpty()) {
             query += createUrisQuery(request.getUris());
         }
-        query += "GROUP BY app, uri ORDER BY hits DESC";
+        query += " GROUP BY app, uri ORDER BY hits DESC";
         return jdbcTemplate.query(query, viewStatsMapper, request.getStart(), request.getEnd());
     }
 
 
     private String createUrisQuery(List<String> uris) {
         StringBuilder result = new StringBuilder("AND uri IN ('");
-        for (int i = 0; i < uris.size(); i++) {
-            if (i > 0) {
-                result.append(", '");
-            }
-            result.append(uris.get(i)).append("'");
-        }
-        return result.append(") ").toString();
+        result.append(String.join("', '", uris));
+        return result.append("') ").toString();
     }
 }

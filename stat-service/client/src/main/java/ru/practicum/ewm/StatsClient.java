@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 public class StatsClient extends BaseClient {
-    private static final String APPLICATION_NAME = "ewm-main-service";
+
+    @Value("${server.application.name:ewm-main-service}")
+    private String applicationName;
 
     public StatsClient(@Value("${server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
@@ -26,7 +28,7 @@ public class StatsClient extends BaseClient {
 
     public ResponseEntity<Object> saveHit(HttpServletRequest request) {
         final EndpointHit hit = EndpointHit.builder()
-                .app(APPLICATION_NAME)
+                .app(applicationName)
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())
                 .timestamp(Timestamp.from(Instant.now()).toLocalDateTime())
@@ -42,7 +44,7 @@ public class StatsClient extends BaseClient {
         );
 
         if (uris != null) {
-            parameters.put("uris", uris);
+            parameters.put("uris", String.join(",", uris));
         }
         if (unique) {
             parameters.put("unique", true);
