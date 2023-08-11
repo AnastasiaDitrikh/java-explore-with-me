@@ -9,10 +9,13 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
 public class StatsClient extends BaseClient {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATE_FORMAT);
 
     @Value("${server.application.name:ewm-main-service}")
     private String applicationName;
@@ -36,11 +39,11 @@ public class StatsClient extends BaseClient {
         return post(hit);
     }
 
-    public ResponseEntity<Object> getHit(String start, String end, List<String> uris, Boolean unique) {
+    public ResponseEntity<Object> getHit(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         StringBuilder uriBuilder = new StringBuilder("/stats?start={start}&end={end}");
         Map<String, Object> parameters = Map.of(
-                "start", start,
-                "end", end
+                "start", start.format(formatter),
+                "end", end.format(formatter)
         );
 
         if (uris != null) {
