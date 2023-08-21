@@ -11,6 +11,7 @@ import ru.practicum.ewm.ViewStats;
 import ru.practicum.ewm.ViewsStatsRequest;
 import ru.practicum.ewm.service.StatsService;
 
+import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +39,11 @@ public class StatsController {
         if (uris == null) {
             uris = Collections.emptyList();
         }
-        List<ViewStats> results = service.getViewStatsList(
+        if (end.isBefore(start)) {
+            log.info("Uncorrected format of dates start {} и end {}", start, end);
+            throw new InvalidParameterException("Uncorrected format of dates");
+        }
+        return service.getViewStatsList(
                 ViewsStatsRequest.builder()
                         .start(start)
                         .end(end)
@@ -46,6 +51,5 @@ public class StatsController {
                         .unique(unique)
                         .build()
         );
-        return results;
     }
 }
