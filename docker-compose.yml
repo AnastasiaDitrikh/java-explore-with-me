@@ -41,7 +41,6 @@ services:
       - SERVICES_STATSSERVICE_URI=http://stat-server:9090
     #   - JAVA_OPTS=-Djdk.httpclient.HttpClient.log=errors,requests
 
-
   ewmdb:
     image: postgres:14-alpine
     volumes:
