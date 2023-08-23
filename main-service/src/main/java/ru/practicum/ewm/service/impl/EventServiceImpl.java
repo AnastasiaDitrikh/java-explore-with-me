@@ -32,10 +32,7 @@ import ru.practicum.ewm.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,11 +99,6 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
-    private Map<Long, List<Request>> getConfirmedRequestsCount(List<Event> events) {
-        List<Request> requests = requestRepository.findAllByEventIdInAndStatus(events
-                .stream().map(Event::getId).collect(Collectors.toList()), RequestStatus.CONFIRMED);
-        return requests.stream().collect(Collectors.groupingBy(r -> r.getEvent().getId()));
-    }
 
     @Override
     public EventFullDto updateEventFromAdmin(Long eventId, UpdateEventAdminRequest updateEvent) {
@@ -493,19 +485,31 @@ public class EventServiceImpl implements EventService {
         List<String> uris = events.stream()
                 .map(event -> String.format("/events/%s", event.getId()))
                 .collect(Collectors.toList());
+        List<LocalDateTime> startDates = events.stream()
+                .map(Event::getCreatedDate)
+                .collect(Collectors.toList());
+        LocalDateTime earliestDate = startDates.stream()
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+        Map<Long, Long> viewStatsMap = new HashMap<>();
 
-        ResponseEntity<Object> response = statsClient.getStats("1999-01-01 00:00:00", "2999-01-01 00:00:00",
-                uris, false);
+        if (earliestDate != null) {
+            ResponseEntity<Object> response = statsClient.getStats(earliestDate, LocalDateTime.now(),
+                    uris, false);
 
-        ObjectMapper mapper = new ObjectMapper();
-        List<ViewStats> viewStatsList = mapper.convertValue(response.getBody(), new TypeReference<>() {
-        });
-        return viewStatsList.stream()
-                .filter(statsDto -> statsDto.getUri().startsWith("/events/"))
-                .collect(Collectors.toMap(
-                        statsDto -> Long.parseLong(statsDto.getUri().substring("/events/".length())),
-                        ViewStats::getHits
-                ));
+
+            ObjectMapper mapper = new ObjectMapper();
+            List<ViewStats> viewStatsList = mapper.convertValue(response.getBody(), new TypeReference<>() {
+            });
+
+            viewStatsMap = viewStatsList.stream()
+                    .filter(statsDto -> statsDto.getUri().startsWith("/events/"))
+                    .collect(Collectors.toMap(
+                            statsDto -> Long.parseLong(statsDto.getUri().substring("/events/".length())),
+                            ViewStats::getHits
+                    ));
+        }
+        return viewStatsMap;
     }
 
     private CaseUpdatedStatusDto updatedStatusConfirmed(Event event, CaseUpdatedStatusDto caseUpdatedStatus,
@@ -551,5 +555,11 @@ public class EventServiceImpl implements EventService {
                 .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now())
                 .build());
+    }
+
+    private Map<Long, List<Request>> getConfirmedRequestsCount(List<Event> events) {
+        List<Request> requests = requestRepository.findAllByEventIdInAndStatus(events
+                .stream().map(Event::getId).collect(Collectors.toList()), RequestStatus.CONFIRMED);
+        return requests.stream().collect(Collectors.groupingBy(r -> r.getEvent().getId()));
     }
 }

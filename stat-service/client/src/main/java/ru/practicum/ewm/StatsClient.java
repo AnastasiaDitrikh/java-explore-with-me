@@ -8,11 +8,14 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class StatsClient extends BaseClient {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     public StatsClient(@Value("${stat-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -28,11 +31,12 @@ public class StatsClient extends BaseClient {
         post(endpointHitDto);
     }
 
-    public ResponseEntity<Object> getStats(String start, String end, List<String> uris,
+    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris,
                                            Boolean unique) {
         Map<String, Object> parameters = Map.of(
-                "start", start,
-                "end", end,
+
+                "start", start.format(formatter),
+                "end", end.format(formatter),
                 "uris", uris,
                 "unique", unique
         );
