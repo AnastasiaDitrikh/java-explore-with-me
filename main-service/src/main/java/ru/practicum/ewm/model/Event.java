@@ -23,8 +23,6 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-    @Column(name = "confirmed_requests")
-    private Integer confirmedRequests;
     @Column(name = "create_date")
     private LocalDateTime createdDate;
     @Column(name = "description", length = 7000)
@@ -50,6 +48,4 @@ public class Event {
     private EventStatus eventStatus;
     @Column(name = "title", nullable = false, length = 120)
     private String title;
-    @Column(name = "views")
-    private Integer views;
 }

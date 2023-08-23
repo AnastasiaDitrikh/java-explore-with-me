@@ -49,12 +49,6 @@ public class RequestServiceImpl implements RequestService {
 
         requestRepository.save(request);
 
-        int countRequestConfirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
-        if (event.getParticipantLimit() != countRequestConfirmed) {
-            event.setConfirmedRequests(countRequestConfirmed);
-            eventRepository.save(event);
-        }
-
         if (event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
         }

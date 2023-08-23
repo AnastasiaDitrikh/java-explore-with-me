@@ -16,10 +16,9 @@ public class EventMapper {
         return Event.builder()
                 .id(null)
                 .annotation(newEventDto.getAnnotation())
-                .confirmedRequests(null)
                 .description(newEventDto.getDescription())
                 .eventDate(newEventDto.getEventDate())
-                .location(newEventDto.getLocation())
+                .location(LocationMapper.toLocation(newEventDto.getLocation()))
                 .paid(newEventDto.isPaid())
                 .participantLimit(newEventDto.getParticipantLimit())
                 .requestModeration(newEventDto.isRequestModeration())
@@ -32,19 +31,17 @@ public class EventMapper {
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
                 .createdOn(event.getCreatedDate())
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
-                .location(event.getLocation())
+                .location(LocationMapper.toLocationDto(event.getLocation()))
                 .paid(event.isPaid())
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(event.getPublisherDate())
                 .requestModeration(event.isRequestModeration())
                 .state(event.getEventStatus())
                 .title(event.getTitle())
-                .views(event.getViews())
                 .build();
     }
 
@@ -53,15 +50,12 @@ public class EventMapper {
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .paid(event.isPaid())
                 .title(event.getTitle())
-                .views(event.getViews())
                 .build();
     }
-
 
     public List<EventShortDto> eventToEventShortDtoList(List<Event> events) {
         return events == null ? new ArrayList<>() :

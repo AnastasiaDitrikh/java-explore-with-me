@@ -10,6 +10,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = "id")
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
