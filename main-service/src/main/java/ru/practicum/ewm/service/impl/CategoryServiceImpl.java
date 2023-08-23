@@ -38,7 +38,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto addNewCategory(NewCategoryDto newCategoryDto) {
-        checkUniqNameCategory(newCategoryDto.getName());
         Category category = CategoryMapper.toNewCategoryDto(newCategoryDto);
         Category saveCategory = categoryRepository.save(category);
         return CategoryMapper.toCategoryDto(saveCategory);
@@ -57,14 +56,19 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
         Category oldCategory = checkCategory(catId);
-        if (categoryDto.getName() != null) {
-            oldCategory.setName(categoryDto.getName());
+        String newName = categoryDto.getName();
+
+        if (newName != null && !oldCategory.getName().equals(newName)) {
+            checkUniqNameCategoryIgnoreCase(newName);
         }
+
+        oldCategory.setName(newName);
         Category updatedCategory = categoryRepository.save(oldCategory);
         return CategoryMapper.toCategoryDto(updatedCategory);
     }
 
-    private void checkUniqNameCategory(String name) {
+
+    private void checkUniqNameCategoryIgnoreCase(String name) {
         if (categoryRepository.existsByNameIgnoreCase(name)) {
             throw new ConflictException(("Категория " + name + " уже существует"));
         }

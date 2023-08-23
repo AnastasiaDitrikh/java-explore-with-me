@@ -38,13 +38,13 @@ public class Event {
     @JoinColumn(name = "location_id")
     private Location location;
     @Column(name = "paid")
-    private Boolean paid;
+    private boolean paid;
     @Column(name = "participant_limit")
-    private Integer participantLimit;
+    private int participantLimit;
     @Column(name = "published_date")
     private LocalDateTime publisherDate;
     @Column(name = "request_moderation")
-    private Boolean requestModeration;
+    private boolean requestModeration;
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private EventStatus eventStatus;

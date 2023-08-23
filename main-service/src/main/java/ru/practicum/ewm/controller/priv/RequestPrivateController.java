@@ -22,7 +22,7 @@ public class RequestPrivateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto addRequest(@PathVariable(value = "userId") @Min(0) Long userId,
-                                              @RequestParam(name = "eventId") Long eventId) {
+                                              @RequestParam(name = "eventId") @Min(0) Long eventId) {
         log.info("POST запрос на создание запроса на участие в событии с id= {}  пользователя с id= {}",
                 eventId, userId);
         return requestService.addNewRequest(userId, eventId);
@@ -35,7 +35,6 @@ public class RequestPrivateController {
     }
 
     @PatchMapping("/{requestId}/cancel")
-    @ResponseStatus(HttpStatus.OK)
     public ParticipationRequestDto canceledRequest(@PathVariable(value = "userId") @Min(0) Long userId,
                                                    @PathVariable(value = "requestId") @Min(0) Long requestId) {
         log.info("PATCH запрос на отмену запроса пользователем с id= {}", userId);

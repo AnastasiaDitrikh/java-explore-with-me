@@ -3,7 +3,7 @@ package ru.practicum.ewm.dto;
 import lombok.*;
 import ru.practicum.ewm.model.enums.RequestStatus;
 
-import java.util.List;
+import java.util.Set;
 
 
 @Getter
@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class EventRequestStatusUpdateRequest {
-    private List<Long> requestIds;
+    private Set<Long> requestIds;
     private RequestStatus status;
 }

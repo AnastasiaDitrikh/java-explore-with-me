@@ -2,7 +2,7 @@ package ru.practicum.ewm.dto;
 
 import lombok.*;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -11,8 +11,8 @@ import java.util.List;
 @Builder
 public class CompilationDto {
     private Long id;
-    private List<EventShortDto> events;
-    private boolean pinned;
+    private Set<EventShortDto> events;
+    private Boolean pinned;
     private String title;
 }
 

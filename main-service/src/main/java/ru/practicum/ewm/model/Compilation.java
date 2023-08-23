@@ -1,14 +1,12 @@
 package ru.practicum.ewm.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,9 +18,9 @@ public class Compilation {
     @ManyToMany
     @JoinTable(name = "compilations_to_event", joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
-    private List<Event> events;
+    private Set<Event> events;
     @Column(name = "pinned")
     private Boolean pinned;
-    @Column(name = "title", nullable = false, length = 120)
+    @Column(name = "title", nullable = false, length = 50)
     private String title;
 }

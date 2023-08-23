@@ -2,8 +2,6 @@ package ru.practicum.ewm.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.CompilationDto;
@@ -17,9 +15,7 @@ import ru.practicum.ewm.repository.CompilationRepository;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.service.CompilationService;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +34,8 @@ public class CompilationServiceImpl implements CompilationService {
         List<Event> events = Optional.ofNullable(compilationDto.getEvents())
                 .map(eventRepository::findAllById)
                 .orElse(Collections.emptyList());
-        compilation.setEvents(events);
+        Set<Event> eventsSet = new HashSet<>(events);
+        compilation.setEvents(eventsSet);
 
         Compilation compilationAfterSave = compilationRepository.save(compilation);
         return CompilationMapper.toDto(compilationAfterSave);
@@ -49,10 +46,10 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto updateCompilation(Long compId, UpdateCompilationDto update) {
         Compilation compilation = checkCompilation(compId);
 
-        List<Event> events = Optional.ofNullable(update.getEvents())
+        Set<Event> events = Optional.ofNullable(update.getEvents())
                 .map(ids -> ids.stream()
                         .flatMap(id -> eventRepository.findAllById(Collections.singleton(id)).stream())
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toSet())
                 )
                 .orElse(compilation.getEvents());
         compilation.setEvents(events);
@@ -60,8 +57,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilation.setPinned(Optional.ofNullable(update.getPinned()).orElse(compilation.getPinned()));
         compilation.setTitle(Optional.ofNullable(update.getTitle()).orElse(compilation.getTitle()));
 
-        Compilation compilationAfterSave = compilationRepository.save(compilation);
-        return CompilationMapper.toDto(compilationAfterSave);
+        return CompilationMapper.toDto(compilation);
     }
 
     @Transactional
@@ -72,11 +68,21 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public List<CompilationDto> getCompilations(boolean pinned, int from, int size) {
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
-        return compilationRepository.findAllByPinnedIs(pinned, pageable)
-                .stream().map(CompilationMapper::toDto).collect(Collectors.toList());
+    public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
+
+        PageRequest pageRequest = PageRequest.of(from, size);
+        List<Compilation> compilations;
+        if (pinned == null) {
+            compilations = compilationRepository.findAll(pageRequest).getContent();
+        } else {
+            compilations = compilationRepository.findAllByPinned(pinned, pageRequest);
+        }
+
+        return compilations.stream()
+                .map(CompilationMapper::toDto)
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public CompilationDto findByIdCompilation(Long compId) {

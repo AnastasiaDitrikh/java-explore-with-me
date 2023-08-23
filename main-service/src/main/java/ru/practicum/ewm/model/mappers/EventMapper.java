@@ -20,9 +20,9 @@ public class EventMapper {
                 .description(newEventDto.getDescription())
                 .eventDate(newEventDto.getEventDate())
                 .location(newEventDto.getLocation())
-                .paid(newEventDto.getPaid())
+                .paid(newEventDto.isPaid())
                 .participantLimit(newEventDto.getParticipantLimit())
-                .requestModeration(newEventDto.getRequestModeration())
+                .requestModeration(newEventDto.isRequestModeration())
                 .title(newEventDto.getTitle())
                 .build();
     }
@@ -38,10 +38,10 @@ public class EventMapper {
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .location(event.getLocation())
-                .paid(event.getPaid())
+                .paid(event.isPaid())
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(event.getPublisherDate())
-                .requestModeration(event.getRequestModeration())
+                .requestModeration(event.isRequestModeration())
                 .state(event.getEventStatus())
                 .title(event.getTitle())
                 .views(event.getViews())
@@ -56,11 +56,12 @@ public class EventMapper {
                 .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
-                .paid(event.getPaid())
+                .paid(event.isPaid())
                 .title(event.getTitle())
                 .views(event.getViews())
                 .build();
     }
+
 
     public List<EventShortDto> eventToEventShortDtoList(List<Event> events) {
         return events == null ? new ArrayList<>() :

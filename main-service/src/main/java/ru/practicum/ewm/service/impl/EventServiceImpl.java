@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,11 @@ public class EventServiceImpl implements EventService {
     private final StatsClient statsClient;
     private final RequestRepository requestRepository;
     private final LocationRepository locationRepository;
+
+
+    @Value("${server.application.name:ewm-service}")
+    private String applicationName;
+
 
     @Override
     public List<EventFullDto> getAllEventFromAdmin(SearchEventParamsAdmin searchEventParamsAdmin) {
@@ -292,18 +298,18 @@ public class EventServiceImpl implements EventService {
         checkUser(userId);
         Event event = checkEvenByInitiatorAndEventId(userId, eventId);
 
-        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
             throw new ConflictException("Это событие не требует подтверждения запросов");
         }
         RequestStatus status = inputUpdate.getStatus();
 
         switch (status) {
             case CONFIRMED:
-                if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
+                if (event.getParticipantLimit() == event.getConfirmedRequests()) {
                     throw new ConflictException("Лимит участников исчерпан");
                 }
                 CaseUpdatedStatusDto updatedStatusConfirmed = updatedStatusConfirmed(event, CaseUpdatedStatusDto.builder()
-                        .idsFromUpdateStatus(inputUpdate.getRequestIds()).build(), RequestStatus.CONFIRMED);
+                        .idsFromUpdateStatus(new ArrayList<>(inputUpdate.getRequestIds())).build(), RequestStatus.CONFIRMED);
 
                 List<Request> confirmedRequests = requestRepository.findAllById(updatedStatusConfirmed.getProcessedIds());
                 List<Request> rejectedRequests = new ArrayList<>();
@@ -321,12 +327,12 @@ public class EventServiceImpl implements EventService {
                                 .map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList()))
                         .build();
             case REJECTED:
-                if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
+                if (event.getParticipantLimit() == event.getConfirmedRequests()) {
                     throw new ConflictException("Лимит участников исчерпан");
                 }
 
                 final CaseUpdatedStatusDto updatedStatusReject = updatedStatusConfirmed(event, CaseUpdatedStatusDto.builder()
-                        .idsFromUpdateStatus(inputUpdate.getRequestIds()).build(), RequestStatus.REJECTED);
+                        .idsFromUpdateStatus(new ArrayList<>(inputUpdate.getRequestIds())).build(), RequestStatus.REJECTED);
                 List<Request> rejectRequest = requestRepository.findAllById(updatedStatusReject.getProcessedIds());
 
                 return EventRequestStatusUpdateResult.builder()
@@ -504,9 +510,8 @@ public class EventServiceImpl implements EventService {
     }
 
     private void addStatsClient(HttpServletRequest request) {
-        String app = "ewm-service";
         statsClient.postStats(EndpointHit.builder()
-                .app(app)
+                .app(applicationName)
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now())

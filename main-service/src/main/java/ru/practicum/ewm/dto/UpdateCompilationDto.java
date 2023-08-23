@@ -3,7 +3,7 @@ package ru.practicum.ewm.dto;
 import lombok.*;
 
 import javax.validation.constraints.Size;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 public class UpdateCompilationDto {
     private Long id;
-    private List<Long> events;
+    private Set<Long> events;
     private Boolean pinned;
     @Size(max = 50)
     private String title;

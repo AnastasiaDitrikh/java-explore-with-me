@@ -23,11 +23,10 @@ public class EventPrivateController {
     private final EventService eventService;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getAllEventsByUserId(@PathVariable(value = "userId") @Min(1) Long userId,
-                                                    @RequestParam(value = "from", required = false, defaultValue = "0")
+                                                    @RequestParam(value = "from", defaultValue = "0")
                                                     @PositiveOrZero Integer from,
-                                                    @RequestParam(value = "size", required = false, defaultValue = "10")
+                                                    @RequestParam(value = "size", defaultValue = "10")
                                                     @Positive Integer size) {
         log.info("GET запрос на получения событий пользователя с id= {}", userId);
         return eventService.getEventsByUserId(userId, from, size);
@@ -42,7 +41,6 @@ public class EventPrivateController {
     }
 
     @GetMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
     public EventFullDto getFullEventByOwner(@PathVariable(value = "userId") @Min(1) Long userId,
                                             @PathVariable(value = "eventId") @Min(1) Long eventId) {
         log.info("GET запрос на получения полной информации о событии для пользователя с id= {}", userId);
@@ -58,7 +56,6 @@ public class EventPrivateController {
     }
 
     @GetMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getAllRequestByEventFromOwner(@PathVariable(value = "userId") @Min(1) Long userId,
                                                                        @PathVariable(value = "eventId") @Min(1) Long eventId) {
         log.info("GET запрос на получение информации о всех запросах об участии в событии для пользователя с id= {}", userId);
@@ -66,7 +63,6 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
     public EventRequestStatusUpdateResult updateStatusRequestFromOwner(@PathVariable(value = "userId") @Min(1) Long userId,
                                                                        @PathVariable(value = "eventId") @Min(1) Long eventId,
                                                                        @RequestBody EventRequestStatusUpdateRequest inputUpdate) {

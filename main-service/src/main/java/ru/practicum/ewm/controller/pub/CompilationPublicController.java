@@ -2,11 +2,14 @@ package ru.practicum.ewm.controller.pub;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.CompilationDto;
 import ru.practicum.ewm.service.CompilationService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -18,12 +21,11 @@ public class CompilationPublicController {
     private final CompilationService compilationService;
 
     @GetMapping
-    public List<CompilationDto> getCompilations(@RequestParam(value = "pinned", required = false) boolean pinned,
-                                                @RequestParam(name = "from", required = false, defaultValue = "0")
-                                                int from,
-                                                @RequestParam(name = "size", required = false, defaultValue = "10")
-                                                int size) {
-        log.info("GET запрос на получение подборки событий");
+    @ResponseStatus(HttpStatus.OK)
+    public List<CompilationDto> getCompilations(
+            @RequestParam(required = false) Boolean pinned,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size) {
         return compilationService.getCompilations(pinned, from, size);
     }
 

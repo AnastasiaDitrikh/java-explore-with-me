@@ -1,5 +1,6 @@
 package ru.practicum.ewm.dto;
 
+
 import lombok.*;
 
 @Getter
@@ -7,8 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDto {
+public class LocationDto {
     private Long id;
-    private String name;
-    private String email;
+    private Float lat;
+    private Float lon;
 }

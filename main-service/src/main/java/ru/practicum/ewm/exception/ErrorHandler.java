@@ -2,11 +2,14 @@ package ru.practicum.ewm.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.postgresql.util.PSQLException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.ewm.model.ApiError;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 
 @RestControllerAdvice
@@ -24,21 +27,11 @@ public class ErrorHandler {
                 .build();
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handlerEmailConflictException(final ConflictException e) {
-        log.debug("Получен статус 409 CONFLICT {}", e.getMessage(), e);
 
-        return ApiError.builder()
-                .status(HttpStatus.CONFLICT.toString())
-                .message(e.getMessage())
-                .reason("Integrity constraint has been violated.")
-                .build();
-    }
-
-    @ExceptionHandler
+    @ExceptionHandler({MethodArgumentNotValidException.class, UncorrectedParametersException.class, MethodArgumentTypeMismatchException.class,
+            MissingServletRequestParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handlerIncorrectParametersException(UncorrectedParametersException e) {
+    public ApiError handlerIncorrectParametersException(Exception e) {
         log.debug("Получен статус 400 BAD_REQUEST {}", e.getMessage(), e);
         return ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.toString())
@@ -47,14 +40,26 @@ public class ErrorHandler {
                 .build();
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({PSQLException.class, ConflictException.class, DataIntegrityViolationException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handlerSQLException(PSQLException e) {
+    public ApiError handlerValidationException(Exception e) {
         log.debug("Получен статус 409 CONFLICT {}", e.getMessage());
         return ApiError.builder()
                 .status(HttpStatus.CONFLICT.toString())
                 .message(e.getMessage())
                 .reason("Request is CONFLICT")
+                .build();
+    }
+
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handlerOtherException(Throwable e) {
+        log.warn("Получен статус 500 SERVER_ERROR {}", e.getMessage(), e);
+        return ApiError.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.toString())
+                .message(e.getMessage())
+                .reason("Request is INTERNAL_SERVER_ERROR")
                 .build();
     }
 }

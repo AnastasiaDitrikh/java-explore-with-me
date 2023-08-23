@@ -35,7 +35,6 @@ public class CategoryAdminController {
     }
 
     @PatchMapping("/{catId}")
-    @ResponseStatus(HttpStatus.OK)
     public CategoryDto updateCategory(@PathVariable(value = "catId") @Min(1) Long catId,
                                       @RequestBody @Valid CategoryDto categoryDto) {
         log.info("PATCH запрос на обновдение категории с id = {}", catId);

@@ -31,18 +31,17 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationRequestDto addNewRequest(Long userId, Long eventId) {
         User user = checkUser(userId);
+
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id= " + eventId + " не найдено"));
-
         LocalDateTime createdOn = LocalDateTime.now();
         validateNewRequest(event, userId, eventId);
-
         Request request = new Request();
         request.setCreated(createdOn);
         request.setRequester(user);
         request.setEvent(event);
 
-        if (event.getRequestModeration()) {
+        if (event.isRequestModeration()) {
             request.setStatus(RequestStatus.PENDING);
         } else {
             request.setStatus(RequestStatus.CONFIRMED);

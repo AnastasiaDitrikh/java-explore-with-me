@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS compilations
 (
     id     BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY UNIQUE,
     pinned BOOLEAN      NOT NULL,
-    title  VARCHAR(120) NOT NULL
+    title  VARCHAR(50) NOT NULL
     );
 
 CREATE TABLE IF NOT EXISTS compilations_to_event
