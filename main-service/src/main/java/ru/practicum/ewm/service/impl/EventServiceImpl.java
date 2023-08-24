@@ -91,7 +91,7 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, List<Request>> confirmedRequestsCountMap = getConfirmedRequestsCount(events.toList());
         for (EventFullDto event : result) {
-            List<Request> requests = confirmedRequestsCountMap.getOrDefault(event.getId(), new ArrayList<>());
+            List<Request> requests = confirmedRequestsCountMap.getOrDefault(event.getId(), List.of());
             event.setConfirmedRequests(requests.size());
         }
         return result;
@@ -372,13 +372,11 @@ public class EventServiceImpl implements EventService {
                 () -> new NotFoundException("Пользователя с id = " + userId + " не существует"));
     }
 
-
-    private Request checkRequestOrEvent(Long eventId, Long requestId) {
-        return requestRepository.findByEventIdAndId(eventId, requestId).orElseThrow(
+    private List<Request> checkRequestOrEventList(Long eventId, List<Long> requestId) {
+        return requestRepository.findByEventIdAndIdIn(eventId, requestId).orElseThrow(
                 () -> new NotFoundException("Запроса с id = " + requestId + " или события с id = "
                         + eventId + "не существуют"));
     }
-
 
     private Category checkCategory(Long catId) {
         return categoryRepository.findById(catId).orElseThrow(
@@ -432,17 +430,21 @@ public class EventServiceImpl implements EventService {
         int freeRequest = event.getParticipantLimit() - confirmedRequestsCount;
         List<Long> ids = caseUpdatedStatus.getIdsFromUpdateStatus();
         List<Long> processedIds = new ArrayList<>();
+        List<Request> requestListLoaded = checkRequestOrEventList(event.getId(), ids);
         List<Request> requestList = new ArrayList<>();
-        for (Long id : ids) {
+
+        for (Request request : requestListLoaded) {
             if (freeRequest == 0) {
                 break;
             }
-            Request request = checkRequestOrEvent(event.getId(), id);
+
             request.setStatus(status);
             requestList.add(request);
+
             processedIds.add(request.getId());
             freeRequest--;
         }
+
         requestRepository.saveAll(requestList);
         caseUpdatedStatus.setProcessedIds(processedIds);
         return caseUpdatedStatus;
@@ -451,8 +453,9 @@ public class EventServiceImpl implements EventService {
     private List<Request> rejectRequest(List<Long> ids, Long eventId) {
         List<Request> rejectedRequests = new ArrayList<>();
         List<Request> requestList = new ArrayList<>();
-        for (Long id : ids) {
-            Request request = checkRequestOrEvent(eventId, id);
+        List<Request> requestListLoaded = checkRequestOrEventList(eventId, ids);
+
+        for (Request request : requestListLoaded) {
             if (!request.getStatus().equals(RequestStatus.PENDING)) {
                 break;
             }

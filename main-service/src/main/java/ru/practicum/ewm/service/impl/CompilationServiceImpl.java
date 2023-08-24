@@ -32,9 +32,10 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = CompilationMapper.toCompilation(compilationDto);
         compilation.setPinned(Optional.ofNullable(compilation.getPinned()).orElse(false));
 
-        List<Event> events = Optional.ofNullable(compilationDto.getEvents())
-                .map(eventRepository::findAllById)
-                .orElse(Collections.emptyList());
+        Set<Long> compEventIds = (compilationDto.getEvents() != null) ? compilationDto.getEvents() : Collections.emptySet();
+        List<Long> eventIds = new ArrayList<>(compEventIds);
+
+        List<Event> events = eventRepository.findAllByIdIn(eventIds);
         Set<Event> eventsSet = new HashSet<>(events);
         compilation.setEvents(eventsSet);
 
