@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.ewm.model.enums.EventStatus;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -24,6 +25,7 @@ public class EventFullDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     private UserShortDto initiator;
+    @Valid
     private LocationDto location;
     private Boolean paid;
     private Integer participantLimit;
@@ -32,5 +34,5 @@ public class EventFullDto {
     private Boolean requestModeration;
     private EventStatus state;
     private String title;
-    private Integer views;
+    private Long views;
 }

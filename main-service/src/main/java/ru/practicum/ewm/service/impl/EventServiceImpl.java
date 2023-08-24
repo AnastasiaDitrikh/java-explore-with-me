@@ -45,6 +45,7 @@ public class EventServiceImpl implements EventService {
     private final StatsClient statsClient;
     private final RequestRepository requestRepository;
     private final LocationRepository locationRepository;
+    private final ObjectMapper objectMapper;
 
 
     @Value("${server.application.name:ewm-service}")
@@ -89,13 +90,10 @@ public class EventServiceImpl implements EventService {
                 .stream().map(EventMapper::toEventFullDto).collect(Collectors.toList());
 
         Map<Long, List<Request>> confirmedRequestsCountMap = getConfirmedRequestsCount(events.toList());
-
         for (EventFullDto event : result) {
-            List<Request> requests = confirmedRequestsCountMap.get(event.getId());
-            Integer confirmedRequests = requests != null ? requests.size() : 0;
-            event.setConfirmedRequests(confirmedRequests);
+            List<Request> requests = confirmedRequestsCountMap.getOrDefault(event.getId(), new ArrayList<>());
+            event.setConfirmedRequests(requests.size());
         }
-
         return result;
     }
 
@@ -107,72 +105,83 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("Можно изменить только неподтвержденное событие");
         }
         boolean hasChanges = false;
-        String gotAnnotation = updateEvent.getAnnotation();
-        if (gotAnnotation != null && !gotAnnotation.isBlank()) {
-            oldEvent.setAnnotation(gotAnnotation);
-        }
-        Long gotCategory = updateEvent.getCategory();
-        if (gotCategory != null) {
-            Category category = checkCategory(gotCategory);
-            oldEvent.setCategory(category);
-            hasChanges = true;
-        }
-        String gotDescription = updateEvent.getDescription();
-        if (gotDescription != null && !gotDescription.isBlank()) {
-            oldEvent.setDescription(gotDescription);
+        Event eventForUpdate = universalUpdate(oldEvent, updateEvent);
+        if (eventForUpdate == null) {
+            eventForUpdate = oldEvent;
+        } else {
             hasChanges = true;
         }
         LocalDateTime gotEventDate = updateEvent.getEventDate();
         if (gotEventDate != null) {
             if (gotEventDate.isBefore(LocalDateTime.now().plusHours(1))) {
                 throw new UncorrectedParametersException("Некорректные параметры даты.Дата начала " +
-                        "изменяемого события должна " +
-                        "быть не ранее чем за час от даты публикации.");
+                        "изменяемого события должна " + "быть не ранее чем за час от даты публикации.");
             }
-            oldEvent.setEventDate(updateEvent.getEventDate());
+            eventForUpdate.setEventDate(updateEvent.getEventDate());
             hasChanges = true;
-        }
-
-        Location oldLocation = oldEvent.getLocation();
-        if (updateEvent.getLocation() != null) {
-            Location updatedLocation = LocationMapper.toLocation(updateEvent.getLocation());
-            if (oldLocation != updatedLocation) {
-                Location location = locationRepository.save(updatedLocation);
-                oldEvent.setLocation(location);
-                hasChanges = true;
-            }
         }
         if (updateEvent.getPaid() != null) {
-            oldEvent.setPaid(updateEvent.getPaid());
-            hasChanges = true;
-        }
-        Integer gotParticipantLimit = updateEvent.getParticipantLimit();
-        if (gotParticipantLimit != null) {
-            oldEvent.setParticipantLimit(gotParticipantLimit);
-            hasChanges = true;
-        }
-        if (updateEvent.getRequestModeration() != null) {
-            oldEvent.setRequestModeration(updateEvent.getRequestModeration());
+            eventForUpdate.setPaid(updateEvent.getPaid());
             hasChanges = true;
         }
         EventAdminState gotAction = updateEvent.getStateAction();
         if (gotAction != null) {
             if (EventAdminState.PUBLISH_EVENT.equals(gotAction)) {
-                oldEvent.setEventStatus(EventStatus.PUBLISHED);
+                eventForUpdate.setEventStatus(EventStatus.PUBLISHED);
                 hasChanges = true;
             } else if (EventAdminState.REJECT_EVENT.equals(gotAction)) {
-                oldEvent.setEventStatus(EventStatus.CANCELED);
+                eventForUpdate.setEventStatus(EventStatus.CANCELED);
                 hasChanges = true;
             }
         }
-        String gotTitle = updateEvent.getTitle();
-        if (gotTitle != null && !gotTitle.isBlank()) {
-            oldEvent.setTitle(gotTitle);
+        Event eventAfterUpdate = null;
+        if (hasChanges) {
+            eventAfterUpdate = eventRepository.save(eventForUpdate);
+        }
+        return eventAfterUpdate != null ? EventMapper.toEventFullDto(eventAfterUpdate) : null;
+    }
+
+    @Override
+    public EventFullDto updateEventByUserIdAndEventId(Long userId, Long eventId, UpdateEventUserRequest inputUpdate) {
+        checkUser(userId);
+        Event oldEvent = checkEvenByInitiatorAndEventId(userId, eventId);
+        if (oldEvent.getEventStatus().equals(EventStatus.PUBLISHED)) {
+            throw new ConflictException("Статус события не может быть обновлен, так как со статусом PUBLISHED");
+        }
+        if (!oldEvent.getInitiator().getId().equals(userId)) {
+            throw new ConflictException("Пользователь с id= " + userId + " не автор события");
+        }
+        Event eventForUpdate = universalUpdate(oldEvent, inputUpdate);
+        boolean hasChanges = false;
+        if (eventForUpdate == null) {
+            eventForUpdate = oldEvent;
+        } else {
+            hasChanges = true;
+        }
+        LocalDateTime newDate = inputUpdate.getEventDate();
+        if (newDate != null) {
+            checkDateAndTime(LocalDateTime.now(), newDate);
+            eventForUpdate.setEventDate(newDate);
+            hasChanges = true;
+        }
+        EventUserState stateAction = inputUpdate.getStateAction();
+        if (stateAction != null) {
+            switch (stateAction) {
+                case SEND_TO_REVIEW:
+                    eventForUpdate.setEventStatus(EventStatus.PENDING);
+                    hasChanges = true;
+                    break;
+                case CANCEL_REVIEW:
+                    eventForUpdate.setEventStatus(EventStatus.CANCELED);
+                    hasChanges = true;
+                    break;
+            }
         }
         Event eventAfterUpdate = null;
         if (hasChanges) {
-            eventAfterUpdate = eventRepository.save(oldEvent);
+            eventAfterUpdate = eventRepository.save(eventForUpdate);
         }
+
         return eventAfterUpdate != null ? EventMapper.toEventFullDto(eventAfterUpdate) : null;
     }
 
@@ -211,95 +220,9 @@ public class EventServiceImpl implements EventService {
         Event eventSaved = eventRepository.save(event);
 
         EventFullDto eventFullDto = EventMapper.toEventFullDto(eventSaved);
-        eventFullDto.setViews(0);
+        eventFullDto.setViews(0L);
         eventFullDto.setConfirmedRequests(0);
         return eventFullDto;
-    }
-
-    @Override
-    public EventFullDto updateEventByUserIdAndEventId(Long userId, Long eventId,
-                                                      UpdateEventUserRequest inputUpdate) {
-        checkUser(userId);
-        boolean hasChanges = false;
-        Event oldEvent = checkEvenByInitiatorAndEventId(userId, eventId);
-        LocalDateTime newDate = inputUpdate.getEventDate();
-
-        if (newDate != null) {
-            checkDateAndTime(LocalDateTime.now(), newDate);
-            oldEvent.setEventDate(newDate);
-            hasChanges = true;
-        }
-
-        if (!oldEvent.getInitiator().getId().equals(userId)) {
-            throw new ConflictException("Пользователь с id= " + userId + " не автор события");
-        }
-        if (oldEvent.getEventStatus().equals(EventStatus.PUBLISHED)) {
-            throw new ConflictException("Статус события не может быть обновлен, так как со статусом PUBLISHED");
-        }
-
-        String annotation = inputUpdate.getAnnotation();
-        if (annotation != null && !annotation.isBlank()) {
-            oldEvent.setAnnotation(annotation);
-            hasChanges = true;
-        }
-
-        Long categoryId = inputUpdate.getCategory();
-        if (categoryId != null) {
-            Category category = checkCategory(categoryId);
-            oldEvent.setCategory(category);
-            hasChanges = true;
-        }
-
-        String description = inputUpdate.getDescription();
-        if (description != null) {
-            oldEvent.setDescription(description);
-            hasChanges = true;
-        }
-
-        if (inputUpdate.getLocation() != null) {
-            Location location = LocationMapper.toLocation(inputUpdate.getLocation());
-            oldEvent.setLocation(location);
-            hasChanges = true;
-        }
-
-        Integer participantLimit = inputUpdate.getParticipantLimit();
-        if (participantLimit != null) {
-            oldEvent.setParticipantLimit(participantLimit);
-            hasChanges = true;
-        }
-
-        Boolean requestModeration = inputUpdate.getRequestModeration();
-        if (requestModeration != null) {
-            oldEvent.setRequestModeration(requestModeration);
-            hasChanges = true;
-        }
-
-        EventUserState stateAction = inputUpdate.getStateAction();
-        if (stateAction != null) {
-            switch (stateAction) {
-                case SEND_TO_REVIEW:
-                    oldEvent.setEventStatus(EventStatus.PENDING);
-                    hasChanges = true;
-                    break;
-                case CANCEL_REVIEW:
-                    oldEvent.setEventStatus(EventStatus.CANCELED);
-                    hasChanges = true;
-                    break;
-            }
-        }
-
-        String title = inputUpdate.getTitle();
-        if (title != null) {
-            oldEvent.setTitle(title);
-            hasChanges = true;
-        }
-
-        Event eventAfterUpdate = null;
-        if (hasChanges) {
-            eventAfterUpdate = eventRepository.save(oldEvent);
-        }
-
-        return eventAfterUpdate != null ? EventMapper.toEventFullDto(eventAfterUpdate) : null;
     }
 
 
@@ -421,9 +344,8 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> viewStatsMap = getViewsAllEvents(resultEvents);
 
         for (EventShortDto event : result) {
-            Long viewsFromMap = viewStatsMap.get(event.getId());
-            int views = (int) (viewsFromMap != null ? viewsFromMap : 0);
-            event.setViews(views + 1);
+            Long viewsFromMap = viewStatsMap.getOrDefault(event.getId(), 0L);
+            event.setViews(viewsFromMap);
         }
 
         return result;
@@ -438,11 +360,8 @@ public class EventServiceImpl implements EventService {
         addStatsClient(request);
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         Map<Long, Long> viewStatsMap = getViewsAllEvents(List.of(event));
-
-        Long viewsFromMap = viewStatsMap.get(event.getId());
-        int views = (int) (viewsFromMap != null ? viewsFromMap : 0);
-        eventFullDto.setViews(views + 1);
-
+        Long views = viewStatsMap.getOrDefault(event.getId(), 0L);
+        eventFullDto.setViews(views + 1L);
         return eventFullDto;
     }
 
@@ -485,6 +404,7 @@ public class EventServiceImpl implements EventService {
         List<String> uris = events.stream()
                 .map(event -> String.format("/events/%s", event.getId()))
                 .collect(Collectors.toList());
+
         List<LocalDateTime> startDates = events.stream()
                 .map(Event::getCreatedDate)
                 .collect(Collectors.toList());
@@ -495,11 +415,9 @@ public class EventServiceImpl implements EventService {
 
         if (earliestDate != null) {
             ResponseEntity<Object> response = statsClient.getStats(earliestDate, LocalDateTime.now(),
-                    uris, false);
+                    uris, true);
 
-
-            ObjectMapper mapper = new ObjectMapper();
-            List<ViewStats> viewStatsList = mapper.convertValue(response.getBody(), new TypeReference<>() {
+            List<ViewStats> viewStatsList = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
             });
 
             viewStatsMap = viewStatsList.stream()
@@ -561,5 +479,50 @@ public class EventServiceImpl implements EventService {
         List<Request> requests = requestRepository.findAllByEventIdInAndStatus(events
                 .stream().map(Event::getId).collect(Collectors.toList()), RequestStatus.CONFIRMED);
         return requests.stream().collect(Collectors.groupingBy(r -> r.getEvent().getId()));
+    }
+
+    private Event universalUpdate(Event oldEvent, UpdateEventRequest updateEvent) {
+        boolean hasChanges = false;
+        String gotAnnotation = updateEvent.getAnnotation();
+        if (gotAnnotation != null && !gotAnnotation.isBlank()) {
+            oldEvent.setAnnotation(gotAnnotation);
+            hasChanges = true;
+        }
+        Long gotCategory = updateEvent.getCategory();
+        if (gotCategory != null) {
+            Category category = checkCategory(gotCategory);
+            oldEvent.setCategory(category);
+            hasChanges = true;
+        }
+        String gotDescription = updateEvent.getDescription();
+        if (gotDescription != null && !gotDescription.isBlank()) {
+            oldEvent.setDescription(gotDescription);
+            hasChanges = true;
+        }
+        if (updateEvent.getLocation() != null) {
+            Location location = LocationMapper.toLocation(updateEvent.getLocation());
+            oldEvent.setLocation(location);
+            hasChanges = true;
+        }
+        Integer gotParticipantLimit = updateEvent.getParticipantLimit();
+        if (gotParticipantLimit != null) {
+            oldEvent.setParticipantLimit(gotParticipantLimit);
+            hasChanges = true;
+        }
+        Boolean requestModeration = updateEvent.getRequestModeration();
+        if (requestModeration != null) {
+            oldEvent.setRequestModeration(requestModeration);
+            hasChanges = true;
+        }
+        String gotTitle = updateEvent.getTitle();
+        if (gotTitle != null && !gotTitle.isBlank()) {
+            oldEvent.setTitle(gotTitle);
+            hasChanges = true;
+        }
+        if (!hasChanges) {
+
+            oldEvent = null;
+        }
+        return oldEvent;
     }
 }

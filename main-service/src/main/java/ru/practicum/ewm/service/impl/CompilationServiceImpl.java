@@ -8,6 +8,7 @@ import ru.practicum.ewm.dto.CompilationDto;
 import ru.practicum.ewm.dto.NewCompilationDto;
 import ru.practicum.ewm.dto.UpdateCompilationDto;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.UncorrectedParametersException;
 import ru.practicum.ewm.model.Compilation;
 import ru.practicum.ewm.model.Event;
 import ru.practicum.ewm.model.mappers.CompilationMapper;
@@ -55,6 +56,9 @@ public class CompilationServiceImpl implements CompilationService {
         compilation.setEvents(events);
 
         compilation.setPinned(Optional.ofNullable(update.getPinned()).orElse(compilation.getPinned()));
+        if (compilation.getTitle().isBlank()) {
+            throw new UncorrectedParametersException("Title не может состоять из пробелов");
+        }
         compilation.setTitle(Optional.ofNullable(update.getTitle()).orElse(compilation.getTitle()));
 
         return CompilationMapper.toDto(compilation);
