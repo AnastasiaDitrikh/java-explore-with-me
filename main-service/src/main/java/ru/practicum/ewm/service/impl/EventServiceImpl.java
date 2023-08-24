@@ -361,7 +361,7 @@ public class EventServiceImpl implements EventService {
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         Map<Long, Long> viewStatsMap = getViewsAllEvents(List.of(event));
         Long views = viewStatsMap.getOrDefault(event.getId(), 0L);
-        eventFullDto.setViews(views + 1L);
+        eventFullDto.setViews(views);
         return eventFullDto;
     }
 
@@ -435,34 +435,35 @@ public class EventServiceImpl implements EventService {
         int freeRequest = event.getParticipantLimit() - confirmedRequestsCount;
         List<Long> ids = caseUpdatedStatus.getIdsFromUpdateStatus();
         List<Long> processedIds = new ArrayList<>();
-
+        List<Request> requestList = new ArrayList<>();
         for (Long id : ids) {
             if (freeRequest == 0) {
                 break;
             }
             Request request = checkRequestOrEvent(event.getId(), id);
             request.setStatus(status);
-            requestRepository.save(request);
+            requestList.add(request);
             processedIds.add(request.getId());
             freeRequest--;
         }
+        requestRepository.saveAll(requestList);
         caseUpdatedStatus.setProcessedIds(processedIds);
         return caseUpdatedStatus;
     }
 
     private List<Request> rejectRequest(List<Long> ids, Long eventId) {
         List<Request> rejectedRequests = new ArrayList<>();
-
+        List<Request> requestList = new ArrayList<>();
         for (Long id : ids) {
             Request request = checkRequestOrEvent(eventId, id);
             if (!request.getStatus().equals(RequestStatus.PENDING)) {
                 break;
             }
             request.setStatus(RequestStatus.REJECTED);
-            requestRepository.save(request);
+            requestList.add(request);
             rejectedRequests.add(request);
         }
-
+        requestRepository.saveAll(requestList);
         return rejectedRequests;
     }
 

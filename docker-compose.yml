@@ -46,8 +46,6 @@ services:
     volumes:
       - /var/lib/postgresql/data/
     container_name: ewmdb
-    ports:
-      - "5433:5432"
     environment:
       - POSTGRES_DB=ewmdb
       - POSTGRES_USER=ewm
