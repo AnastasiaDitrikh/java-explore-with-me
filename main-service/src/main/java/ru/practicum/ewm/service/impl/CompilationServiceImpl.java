@@ -34,7 +34,6 @@ public class CompilationServiceImpl implements CompilationService {
 
         Set<Long> compEventIds = (compilationDto.getEvents() != null) ? compilationDto.getEvents() : Collections.emptySet();
         List<Long> eventIds = new ArrayList<>(compEventIds);
-
         List<Event> events = eventRepository.findAllByIdIn(eventIds);
         Set<Event> eventsSet = new HashSet<>(events);
         compilation.setEvents(eventsSet);
@@ -48,13 +47,13 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto updateCompilation(Long compId, UpdateCompilationDto update) {
         Compilation compilation = checkCompilation(compId);
 
-        Set<Event> events = Optional.ofNullable(update.getEvents())
-                .map(ids -> ids.stream()
-                        .flatMap(id -> eventRepository.findAllById(Collections.singleton(id)).stream())
-                        .collect(Collectors.toSet())
-                )
-                .orElse(compilation.getEvents());
-        compilation.setEvents(events);
+        Set<Long> eventIds = update.getEvents();
+
+        if (eventIds != null) {
+            List<Event> events = eventRepository.findAllByIdIn(new ArrayList<>(eventIds));
+            Set<Event> eventSet = new HashSet<>(events);
+            compilation.setEvents(eventSet);
+        }
 
         compilation.setPinned(Optional.ofNullable(update.getPinned()).orElse(compilation.getPinned()));
         if (compilation.getTitle().isBlank()) {
