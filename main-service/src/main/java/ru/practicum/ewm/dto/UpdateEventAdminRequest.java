@@ -13,5 +13,4 @@ import ru.practicum.ewm.model.enums.EventAdminState;
 public class UpdateEventAdminRequest extends UpdateEventRequest {
 
     private EventAdminState stateAction;
-    private Boolean paid;
 }

@@ -120,10 +120,7 @@ public class EventServiceImpl implements EventService {
             eventForUpdate.setEventDate(updateEvent.getEventDate());
             hasChanges = true;
         }
-        if (updateEvent.getPaid() != null) {
-            eventForUpdate.setPaid(updateEvent.getPaid());
-            hasChanges = true;
-        }
+
         EventAdminState gotAction = updateEvent.getStateAction();
         if (gotAction != null) {
             if (EventAdminState.PUBLISH_EVENT.equals(gotAction)) {
@@ -508,6 +505,10 @@ public class EventServiceImpl implements EventService {
         Integer gotParticipantLimit = updateEvent.getParticipantLimit();
         if (gotParticipantLimit != null) {
             oldEvent.setParticipantLimit(gotParticipantLimit);
+            hasChanges = true;
+        }
+        if (updateEvent.getPaid() != null) {
+            oldEvent.setPaid(updateEvent.getPaid());
             hasChanges = true;
         }
         Boolean requestModeration = updateEvent.getRequestModeration();

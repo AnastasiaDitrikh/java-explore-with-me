@@ -31,4 +31,5 @@ public class UpdateEventRequest {
     private Boolean requestModeration;
     @Size(min = 3, max = 120)
     private String title;
+    private Boolean paid;
 }
