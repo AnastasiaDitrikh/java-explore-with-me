@@ -11,8 +11,8 @@ import ru.practicum.ewm.ViewStats;
 import ru.practicum.ewm.ViewsStatsRequest;
 import ru.practicum.ewm.service.StatsService;
 
+import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -32,13 +32,14 @@ public class StatsController {
     @GetMapping("/stats")
     public List<ViewStats> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                    @RequestParam(required = false) List<String> uris,
+                                    @RequestParam(defaultValue = "") List<String> uris,
                                     @RequestParam(defaultValue = "false") boolean unique) {
         log.info("GET request to get all statistic.");
-        if (uris == null) {
-            uris = Collections.emptyList();
+        if (end.isBefore(start)) {
+            log.info("Uncorrected format of dates start {} и end {}", start, end);
+            throw new InvalidParameterException("Uncorrected format of dates");
         }
-        List<ViewStats> results = service.getViewStatsList(
+        return service.getViewStatsList(
                 ViewsStatsRequest.builder()
                         .start(start)
                         .end(end)
@@ -46,6 +47,5 @@ public class StatsController {
                         .unique(unique)
                         .build()
         );
-        return results;
     }
 }

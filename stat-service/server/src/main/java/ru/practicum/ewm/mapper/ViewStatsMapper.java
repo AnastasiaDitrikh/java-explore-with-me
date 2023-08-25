@@ -1,4 +1,4 @@
-package ru.practicum.ewm.repository;
+package ru.practicum.ewm.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ public class ViewStatsMapper implements RowMapper<ViewStats> {
         return ViewStats.builder()
                 .app(rs.getString("app"))
                 .uri(rs.getString("uri"))
-                .hits(rs.getInt("hits"))
+                .hits(rs.getLong("hits"))
                 .build();
     }
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EndpointHit {
-    private int id;
+    private Long id;
     private String app;
     private String uri;
     private String ip;

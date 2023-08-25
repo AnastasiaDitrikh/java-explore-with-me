@@ -1,50 +1,52 @@
 version: '3.1'
 services:
-  server:
-    build: stat-service/server
-    image: server
+  stat-server:
+    build: ./stat-service/server
+    image: stat-service
     container_name: server
     ports:
       - "9090:9090"
-      - "9091:9091"
     depends_on:
       - statdb
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://statdb:5432/statdb
       - SPRING_DATASOURCE_USERNAME=ewm
       - SPRING_DATASOURCE_PASSWORD=ewm
+      - JAVA_OPTS=-Djdk.httpclient.HttpClient.log=errors,requests
 
   statdb:
-    image: postgres:13.7-alpine
+    image: postgres:14-alpine
+    volumes:
+      - /var/lib/postgresql/data/
     container_name: statdb
-    ports:
-      - "5432:5432"
+
     environment:
-      - POSTGRES_PASSWORD=ewm
-      - POSTGRES_USER=ewm
       - POSTGRES_DB=statdb
+      - POSTGRES_USER=ewm
+      - POSTGRES_PASSWORD=ewm
 
   main-service:
-    build: main-service
+    build: ./main-service
     image: main-service
     container_name: main-service
     ports:
       - "8080:8080"
     depends_on:
-      - main-db
-      - server
+      - ewmdb
+      - stat-server
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/main-db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewmdb:5432/ewmdb
       - SPRING_DATASOURCE_USERNAME=ewm
       - SPRING_DATASOURCE_PASSWORD=ewm
-      - STATS_SERVER_URL=http://server:9090
+      - SERVICES_STATSSERVICE_URI=http://stat-server:9090
+    #   - JAVA_OPTS=-Djdk.httpclient.HttpClient.log=errors,requests
 
-  main-db:
-    image: postgres:13.7-alpine
-    container_name: main-db
-    ports:
-      - "6542:5432"
+  ewmdb:
+    image: postgres:14-alpine
+    volumes:
+      - /var/lib/postgresql/data/
+    container_name: ewmdb
     environment:
-      - POSTGRES_PASSWORD=ewm
+      - POSTGRES_DB=ewmdb
       - POSTGRES_USER=ewm
-      - POSTGRES_DB=main-db
+      - POSTGRES_PASSWORD=ewm

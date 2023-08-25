@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.ewm.EndpointHit;
 import ru.practicum.ewm.ViewStats;
 import ru.practicum.ewm.ViewsStatsRequest;
+import ru.practicum.ewm.mapper.ViewStatsMapper;
 
 import java.sql.Timestamp;
 import java.util.List;
