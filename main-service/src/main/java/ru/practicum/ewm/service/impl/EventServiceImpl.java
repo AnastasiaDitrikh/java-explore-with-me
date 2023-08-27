@@ -16,6 +16,8 @@ import ru.practicum.ewm.EndpointHit;
 import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.ViewStats;
 import ru.practicum.ewm.dto.*;
+import ru.practicum.ewm.dto.event.*;
+import ru.practicum.ewm.dto.request.*;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.UncorrectedParametersException;

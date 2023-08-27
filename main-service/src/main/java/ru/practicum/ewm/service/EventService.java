@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service;
 
-import ru.practicum.ewm.dto.*;
+import ru.practicum.ewm.dto.event.*;
+import ru.practicum.ewm.dto.request.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
