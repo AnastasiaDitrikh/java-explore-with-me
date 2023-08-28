@@ -1,21 +1,22 @@
 package ru.practicum.ewm.dto.comment;
 
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class CommentDto {
     private Long id;
 
     private String text;
 
-    private String authorName;
-
+    private Long authorId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
-
-    private LocalDateTime lastUpdatedOn;
 }

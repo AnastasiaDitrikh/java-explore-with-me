@@ -1,9 +1,6 @@
 package ru.practicum.ewm.dto.comment;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -12,8 +9,9 @@ import javax.validation.constraints.Size;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewCommentDto {
+@Builder
+public class NewReportDto {
     @NotBlank
     @Size(min = 2, max = 1500)
-    private String text;
+    private String reason;
 }

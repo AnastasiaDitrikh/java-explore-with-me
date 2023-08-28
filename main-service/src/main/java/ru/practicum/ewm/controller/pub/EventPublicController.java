@@ -25,7 +25,7 @@ import java.util.List;
 @RequestMapping(path = "/events")
 public class EventPublicController {
     private final EventService eventService;
-    private  final CommentService commentService;
+    private final CommentService commentService;
 
     @GetMapping
     public List<EventShortDto> getAllEvents(@Valid SearchEventParams searchEventParams,

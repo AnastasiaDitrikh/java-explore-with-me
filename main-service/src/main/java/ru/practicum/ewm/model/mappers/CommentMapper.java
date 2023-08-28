@@ -1,7 +1,6 @@
 package ru.practicum.ewm.model.mappers;
 
 import lombok.experimental.UtilityClass;
-
 import ru.practicum.ewm.dto.comment.CommentDto;
 import ru.practicum.ewm.dto.comment.NewCommentDto;
 import ru.practicum.ewm.model.Comment;
@@ -15,9 +14,8 @@ public class CommentMapper {
         return CommentDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())
-                .authorName(comment.getAuthor().getName())
+                .authorId(comment.getAuthor().getId())
                 .created(comment.getCreated())
-                .lastUpdatedOn(comment.getLastUpdatedOn())
                 .build();
     }
 
@@ -28,7 +26,8 @@ public class CommentMapper {
                 .author(user)
                 .build();
     }
-    public Comment toComment(CommentDto commentDto){
+
+    public Comment toComment(CommentDto commentDto) {
         return Comment.builder()
                 .text(commentDto.getText())
                 .build();

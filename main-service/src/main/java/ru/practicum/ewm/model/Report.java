@@ -1,7 +1,6 @@
 package ru.practicum.ewm.model;
 
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.ewm.model.enums.ReportStatus;
 
 import javax.persistence.*;
@@ -18,16 +17,14 @@ public class Report {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "comment_id")
     private Comment comment;
-
     @Column(name = "created")
-    @CreationTimestamp
     private LocalDateTime created;
-
     @Column(name = "status")
     private ReportStatus status;
+    @Column(name = "reason")
+    private String reason;
 }
 

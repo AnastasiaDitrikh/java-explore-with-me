@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.EndpointHit;
 import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.ViewStats;
-import ru.practicum.ewm.dto.*;
+import ru.practicum.ewm.dto.CaseUpdatedStatusDto;
 import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.dto.request.*;
 import ru.practicum.ewm.exception.ConflictException;

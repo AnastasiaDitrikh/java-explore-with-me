@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.comment.CommentDto;
 import ru.practicum.ewm.dto.comment.NewCommentDto;
 import ru.practicum.ewm.dto.comment.UpdateCommentDto;
+import ru.practicum.ewm.model.Comment;
 import ru.practicum.ewm.service.CommentService;
-
-
 
 import javax.validation.Valid;
 import java.util.List;
@@ -34,7 +33,7 @@ public class CommentPrivateController {
 
     @PatchMapping("/users/{userId}/{commentId}")
     public CommentDto patchRequestByUser(@PathVariable Long userId, @PathVariable Long commentId,
-                                                                  @Valid @RequestBody UpdateCommentDto updateCommentDto) {
+                                         @Valid @RequestBody UpdateCommentDto updateCommentDto) {
 
         log.info("PATCH запрос на обновление пользователем с userId = {}  комментария с commentId = {} ", userId, commentId);
         return commentService.patchByUser(userId, commentId, updateCommentDto);
@@ -44,5 +43,18 @@ public class CommentPrivateController {
     public List<CommentDto> getRequestListUser(@PathVariable Long userId) {
         log.info("GET запрос на получение комментариев пользователя с userId = {} ", userId);
         return commentService.getCommentUser(userId);
+    }
+
+    @DeleteMapping("/users/{userId}/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable Long userId, @PathVariable Long commentId) {
+        log.info("DELETE запрос на удаление комментария id = {} пользователем id = {} ", userId, commentId);
+        commentService.deleteComment(userId, commentId);
+    }
+
+    @GetMapping("/users/{userId}/{commentId}")
+    public Comment getComment(@PathVariable Long userId, @PathVariable Long commentId) {
+        log.info("GET запрос на получения комментария id = {} пользователем id = {} ", commentId, userId);
+        return commentService.getUserCommentByUserAndCommentId(userId, commentId);
     }
 }

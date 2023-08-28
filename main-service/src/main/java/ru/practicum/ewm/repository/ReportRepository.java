@@ -7,5 +7,5 @@ import ru.practicum.ewm.model.enums.ReportStatus;
 import java.util.List;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
-    List<Report> findAllByStatus (ReportStatus status);
+    List<Report> findAllByStatus(ReportStatus status);
 }

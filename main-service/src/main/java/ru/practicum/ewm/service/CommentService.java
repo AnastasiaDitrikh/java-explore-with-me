@@ -4,6 +4,7 @@ package ru.practicum.ewm.service;
 import ru.practicum.ewm.dto.comment.CommentDto;
 import ru.practicum.ewm.dto.comment.NewCommentDto;
 import ru.practicum.ewm.dto.comment.UpdateCommentDto;
+import ru.practicum.ewm.model.Comment;
 
 import java.util.List;
 
@@ -14,7 +15,10 @@ public interface CommentService {
 
     List<CommentDto> getCommentUser(Long userId);
 
-    List<CommentDto> getCommentEvent(Long eventId);
+    Comment getUserCommentByUserAndCommentId(Long userId, Long commentId);
+
+    List<Comment> getCommentEvent(Long eventId);
+
     void deleteComment(Long userId, Long commentId);
 
 }
