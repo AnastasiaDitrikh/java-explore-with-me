@@ -22,7 +22,6 @@ public class CommentAdminController {
     public Report updateReportStatus(@PathVariable Long reportId) {
         return null;
     }
-
     @GetMapping("/reports")
     public List<Long> getListReportsByStatus(@RequestBody ReportStatus status) {
         log.info("GET запрос на получение жалоб со статусом " + status);
