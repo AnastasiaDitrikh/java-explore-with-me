@@ -17,5 +17,6 @@ public class ReportDto {
     private String reason;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
+    private CommentDto comment;
     private ReportStatus status;
 }

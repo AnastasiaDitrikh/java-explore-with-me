@@ -14,6 +14,7 @@ public class ReportMapper {
                 .reason(report.getReason())
                 .created(report.getCreated())
                 .status(report.getStatus())
+                .comment(CommentMapper.toCommentDto(report.getComment()))
                 .build();
     }
 

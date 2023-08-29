@@ -3,9 +3,9 @@ package ru.practicum.ewm.controller.admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.dto.comment.ReportDto;
+import ru.practicum.ewm.dto.comment.UpdateReportDto;
 import ru.practicum.ewm.model.Report;
-import ru.practicum.ewm.model.enums.ReportStatus;
-import ru.practicum.ewm.service.CommentService;
 import ru.practicum.ewm.service.ReportService;
 
 import java.util.List;
@@ -16,15 +16,17 @@ import java.util.List;
 @RequestMapping(path = "/admin/comments")
 public class CommentAdminController {
     private final ReportService reportService;
-    private final CommentService commentService;
 
     @PostMapping("/reports/{reportId}")
-    public Report updateReportStatus(@PathVariable Long reportId) {
-        return null;
+    public ReportDto updateReportStatus(@PathVariable Long reportId,
+                                        @RequestBody UpdateReportDto updateReportDto) {
+        log.info("Post запрос на обновление статуса жалобы с id = {} ", reportId);
+        return reportService.updateReport(reportId, updateReportDto);
     }
+
     @GetMapping("/reports")
-    public List<Long> getListReportsByStatus(@RequestBody ReportStatus status) {
-        log.info("GET запрос на получение жалоб со статусом " + status);
-        return reportService.getListReportsByStatus(status);
+    public List<Report> getListReportsByStatus() {
+        log.info("GET запрос на получение жалоб со статусом New");
+        return reportService.getListReportsByStatusNew();
     }
 }
