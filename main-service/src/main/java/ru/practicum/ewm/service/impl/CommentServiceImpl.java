@@ -1,6 +1,8 @@
 package ru.practicum.ewm.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.comment.CommentDto;
@@ -18,6 +20,8 @@ import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.CommentService;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,9 +40,14 @@ public class CommentServiceImpl implements CommentService {
         User user = checkUser(userId);
         Comment comment = checkComment(commentId);
         checkAuthorComment(user, comment);
-        if (updateCommentDto.getText() != null) {
-            comment.setText(updateCommentDto.getText());
+        LocalDateTime updateTime = LocalDateTime.now();
+
+        if (updateTime.isAfter(comment.getCreated().plusHours(1L))) {
+            throw new UncorrectedParametersException("Сообщение возможно отредактировать только в течение часа");
         }
+
+        comment.setText(updateCommentDto.getText());
+        comment.setLastUpdatedOn(updateTime);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
@@ -60,9 +69,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Comment> getCommentEvent(Long eventId) {
+    public List<Comment> getCommentEvent(Long eventId, Integer from, Integer size) {
         Event event = checkEvent(eventId);
-        return commentRepository.findAllByEvent_Id(eventId);
+        PageRequest pageable = PageRequest.of(from / size, size);
+        return commentRepository.findAllByEvent_Id(eventId, pageable);
 
     }
 
@@ -72,6 +82,22 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = checkComment(commentId);
         checkAuthorComment(user, comment);
         commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    public void deleteCommentByAdmin(Long commentId) {
+        Comment comment = checkComment(commentId);
+        commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    @Transactional
+    public List<Comment> search(String text, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        }
+        return commentRepository.search(text, pageable);
     }
 
     @Transactional

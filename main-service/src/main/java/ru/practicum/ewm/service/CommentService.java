@@ -17,8 +17,11 @@ public interface CommentService {
 
     Comment getUserCommentByUserAndCommentId(Long userId, Long commentId);
 
-    List<Comment> getCommentEvent(Long eventId);
+    List<Comment> getCommentEvent(Long eventId, Integer from, Integer size);
 
     void deleteComment(Long userId, Long commentId);
 
+    void deleteCommentByAdmin(Long commentId);
+
+    List<Comment> search(String text, Integer from, Integer size);
 }

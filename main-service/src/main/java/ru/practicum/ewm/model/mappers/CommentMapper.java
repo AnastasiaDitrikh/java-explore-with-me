@@ -7,6 +7,8 @@ import ru.practicum.ewm.model.Comment;
 import ru.practicum.ewm.model.Event;
 import ru.practicum.ewm.model.User;
 
+import java.time.LocalDateTime;
+
 
 @UtilityClass
 public class CommentMapper {
@@ -16,6 +18,7 @@ public class CommentMapper {
                 .text(comment.getText())
                 .authorId(comment.getAuthor().getId())
                 .created(comment.getCreated())
+                .lastUpdatedOn(comment.getLastUpdatedOn())
                 .build();
     }
 
@@ -24,6 +27,8 @@ public class CommentMapper {
                 .text(commentDto.getText())
                 .event(event)
                 .author(user)
+                .created(LocalDateTime.now())
+                .lastUpdatedOn(null)
                 .build();
     }
 

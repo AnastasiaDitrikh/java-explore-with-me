@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.SearchEventParams;
-import ru.practicum.ewm.service.CommentService;
 import ru.practicum.ewm.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +24,6 @@ import java.util.List;
 @RequestMapping(path = "/events")
 public class EventPublicController {
     private final EventService eventService;
-    private final CommentService commentService;
 
     @GetMapping
     public List<EventShortDto> getAllEvents(@Valid SearchEventParams searchEventParams,
