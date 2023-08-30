@@ -287,7 +287,7 @@
               "response": []
             },
             {
-              "name": "Добавление комментария",
+              "name": "Добавление комментария от user6 to event2.",
               "event": [
                 {
                   "listen": "prerequest",
@@ -352,6 +352,71 @@
               "response": []
             },
             {
+              "name": "Добавление комментария, который потом удалит админ",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", function () {\r",
+                      "    pm.response.to.have.status(201);   \r",
+                      "    pm.response.to.be.withBody;\r",
+                      "    pm.response.to.be.json;\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"text\": \"Comment for admin) \"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/comments/users/:userId/events/:eventId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "comments",
+                    "users",
+                    ":userId",
+                    "events",
+                    ":eventId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "4"
+                    },
+                    {
+                      "key": "eventId",
+                      "value": "5"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "получение комментариев события",
               "event": [
                 {
@@ -408,6 +473,70 @@
               "response": []
             },
             {
+              "name": "получение событий с количеством комментов",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.be.ok;\r",
+                      "   pm.response.to.be.withBody;\r",
+                      "    pm.response.to.be.json;\r",
+                      "});\r",
+                      "\r",
+                      "const source = pm.collectionVariables.get('response');\r",
+                      "const target = pm.response.json()[0];\r",
+                      "\r",
+                      "pm.test(\"Событие должно содержать поля: id, title, annotation, category, paid, eventDate, initiator, views, confirmedRequests, comments\", function () {\r",
+                      "pm.expect(target).to.have.property('id');\r",
+                      "pm.expect(target).to.have.property('title');\r",
+                      "pm.expect(target).to.have.property('annotation');\r",
+                      "pm.expect(target).to.have.property('category');\r",
+                      "pm.expect(target).to.have.property('paid');\r",
+                      "pm.expect(target).to.have.property('eventDate');\r",
+                      "pm.expect(target).to.have.property('initiator');\r",
+                      "pm.expect(target).to.have.property('views');\r",
+                      "pm.expect(target).to.have.property('confirmedRequests');\r",
+                      "pm.expect(target).to.have.property('comments');\r",
+                      "});\r",
+                      "pm.test(\"Данные в ответе должны соответствовать данным в запросе// у события с id=2 должно быть два комментария\", function () {\r",
+                      "    pm.expect(target.comments).to.not.be.null;\r",
+                      "    pm.expect(target.comments).equal(2);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "получение комментариев события, пустой лист",
               "event": [
                 {
@@ -456,6 +585,125 @@
               "response": []
             },
             {
+              "name": "получение комментариев админом по тексту",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.be.ok;\r",
+                      "});\r",
+                      "pm.test(\"Test search comment response\", function () {\r",
+                      "    pm.response.to.be.withBody;\r",
+                      "    pm.response.to.be.json;\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData.length, 'List length must be 1').to.eql(1);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Test comment[0] 'id' field\", function () {\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData[0]).to.have.property('id');\r",
+                      "    pm.expect(jsonData[0].id, '\"id\" must be 3').to.eql(3);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/comments/search?text=AdmIn",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "comments",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "text",
+                      "value": "AdmIn"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "получение комментариев админом по тексту пустой список",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.be.ok;\r",
+                      "});\r",
+                      "pm.test(\"Test search comment response\", function () {\r",
+                      "    pm.response.to.be.withBody;\r",
+                      "    pm.response.to.be.json;\r",
+                      "    var jsonData = pm.response.json();\r",
+                      "    pm.expect(jsonData.length, 'List length must be 0').to.eql(0);\r",
+                      "});\r",
+                      "\r",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/comments/search?text=horror",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "comments",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "text",
+                      "value": "horror"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "Удаление комментария",
               "event": [
                 {
@@ -492,6 +740,44 @@
                     {
                       "key": "commentId",
                       "value": "2"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Удаление комментария админом",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
+                      "    pm.response.to.have.status(204);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/comments/:commentId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "comments",
+                    ":commentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "commentId",
+                      "value": "3"
                     }
                   ]
                 }
