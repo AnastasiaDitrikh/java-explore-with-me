@@ -1,7 +1,7 @@
 package ru.practicum.ewm.model.mappers;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.ewm.dto.LocationDto;
+import ru.practicum.ewm.dto.location.LocationDto;
 import ru.practicum.ewm.model.Location;
 
 @UtilityClass

@@ -1,8 +1,9 @@
-package ru.practicum.ewm.dto;
+package ru.practicum.ewm.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
+import ru.practicum.ewm.dto.location.LocationDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;

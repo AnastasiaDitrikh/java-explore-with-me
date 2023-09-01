@@ -1,7 +1,7 @@
 package ru.practicum.ewm.model.mappers;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.ewm.dto.ParticipationRequestDto;
+import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.model.Request;
 
 @UtilityClass

@@ -1,4 +1,4 @@
-package ru.practicum.ewm.dto;
+package ru.practicum.ewm.dto.request;
 
 import lombok.*;
 import ru.practicum.ewm.model.enums.RequestStatus;
