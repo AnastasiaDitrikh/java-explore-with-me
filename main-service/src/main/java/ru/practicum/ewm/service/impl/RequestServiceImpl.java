@@ -24,10 +24,21 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
+
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
 
+    /**
+     * Добавляет новый запрос на участие в событии.
+     *
+     * @param userId  идентификатор пользователя
+     * @param eventId идентификатор события
+     * @return объект ParticipationRequestDto нового запроса на участие
+     * @throws NotFoundException если пользователь или событие не найдены
+     * @throws ConflictException если пользователь является инициатором события,
+     *                           превышен лимит участников события, событие не опубликовано или запрос уже существует
+     */
     @Override
     public ParticipationRequestDto addNewRequest(Long userId, Long eventId) {
         User user = checkUser(userId);
@@ -56,6 +67,13 @@ public class RequestServiceImpl implements RequestService {
         return RequestMapper.toParticipationRequestDto(request);
     }
 
+    /**
+     * Возвращает список запросов на участие пользователя.
+     *
+     * @param userId идентификатор пользователя
+     * @return список объектов ParticipationRequestDto запросов на участие
+     * @throws NotFoundException если пользователь не найден
+     */
     @Override
     public List<ParticipationRequestDto> getRequestsByUserId(Long userId) {
         checkUser(userId);
@@ -63,6 +81,15 @@ public class RequestServiceImpl implements RequestService {
         return result.stream().map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
 
+    /**
+     * Отменяет запрос на участие пользователя.
+     *
+     * @param userId    идентификатор пользователя
+     * @param requestId идентификатор запроса на участие
+     * @return объект ParticipationRequestDto отмененного запроса на участие
+     * @throws NotFoundException              если пользователь или запрос не найдены
+     * @throws UncorrectedParametersException если запрос уже отменен или отклонен
+     */
     @Override
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         checkUser(userId);
@@ -76,11 +103,27 @@ public class RequestServiceImpl implements RequestService {
         return RequestMapper.toParticipationRequestDto(requestAfterSave);
     }
 
+    /**
+     * Проверяет существование пользователя по заданному идентификатору.
+     *
+     * @param userId идентификатор пользователя
+     * @return объект User пользователя
+     * @throws NotFoundException если пользователь не найден
+     */
     private User checkUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Категории с id = " + userId + " не существует"));
     }
 
+    /**
+     * Проверяет валидность нового запроса на участие.
+     *
+     * @param event   объект Event события
+     * @param userId  идентификатор пользователя
+     * @param eventId идентификатор события
+     * @throws ConflictException если пользователь является инициатором события,
+     *                           превышен лимит участников события, событие не опубликовано или запрос уже существует
+     */
     private void validateNewRequest(Event event, Long userId, Long eventId) {
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Пользователь с id= " + userId + " не инициатор события");

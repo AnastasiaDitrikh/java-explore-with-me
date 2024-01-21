@@ -19,8 +19,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
 
+    /**
+     * Добавляет нового пользователя.
+     *
+     * @param newUserRequest объект NewUserRequest, содержащий данные нового пользователя
+     * @return объект UserDto нового пользователя
+     */
     @Transactional
     @Override
     public UserDto addNewUser(NewUserRequest newUserRequest) {
@@ -28,6 +35,12 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(user);
     }
 
+    /**
+     * Удаляет пользователя по заданному идентификатору.
+     *
+     * @param userId идентификатор пользователя
+     * @throws NotFoundException если пользователь не найден
+     */
     @Transactional
     @Override
     public void deleteUser(Long userId) {
@@ -37,11 +50,22 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
+    /**
+     * Возвращает список пользователей с пагинацией и возможностью фильтрации по списку идентификаторов.
+     *
+     * @param ids  список идентификаторов пользователей
+     * @param from начальная позиция списка
+     * @param size размер списка
+     * @return список объектов UserDto пользователей
+     */
     @Override
     public List<UserDto> getListUsers(List<Long> ids, Integer from, Integer size) {
         PageRequest page = PageRequest.of(from / size, size);
-        return (ids != null) ? userRepository.findByIdIn(ids, page)
-                .stream().map(UserMapper::toUserDto).collect(Collectors.toList()) : userRepository.findAll(page)
-                .stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+        return (ids != null) ? userRepository.findByIdIn(ids, page).stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList()) :
+                userRepository.findAll(page).stream()
+                        .map(UserMapper::toUserDto)
+                        .collect(Collectors.toList());
     }
 }

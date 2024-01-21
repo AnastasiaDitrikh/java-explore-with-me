@@ -16,6 +16,12 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @Slf4j
 public class ErrorHandler {
 
+    /**
+     * Обработчик исключений для NotFoundException.
+     *
+     * @param e объект NotFoundException
+     * @return объект ApiError с информацией об ошибке
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleNotFoundException(NotFoundException e) {
@@ -27,7 +33,13 @@ public class ErrorHandler {
                 .build();
     }
 
-
+    /**
+     * Обработчик исключений для MethodArgumentNotValidException, UncorrectedParametersException, MethodArgumentTypeMismatchException,
+     * MissingServletRequestParameterException.
+     *
+     * @param e объект Exception
+     * @return объект ApiError с информацией об ошибке
+     */
     @ExceptionHandler({MethodArgumentNotValidException.class, UncorrectedParametersException.class, MethodArgumentTypeMismatchException.class,
             MissingServletRequestParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -40,6 +52,12 @@ public class ErrorHandler {
                 .build();
     }
 
+    /**
+     * Обработчик исключений для PSQLException, ConflictException, DataIntegrityViolationException.
+     *
+     * @param e объект Exception
+     * @return объект ApiError с информацией об ошибке
+     */
     @ExceptionHandler({PSQLException.class, ConflictException.class, DataIntegrityViolationException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handlerValidationException(Exception e) {
@@ -51,7 +69,12 @@ public class ErrorHandler {
                 .build();
     }
 
-
+    /**
+     * Обработчик остальных исключений.
+     *
+     * @param e объект Throwable
+     * @return объект ApiError с информацией об ошибке
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handlerOtherException(Throwable e) {

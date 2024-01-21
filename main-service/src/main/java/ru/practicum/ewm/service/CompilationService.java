@@ -6,6 +6,9 @@ import ru.practicum.ewm.dto.compilatoin.UpdateCompilationDto;
 
 import java.util.List;
 
+/**
+ * Интерфейс CompilationService, определяющий методы для работы с подборками
+ */
 public interface CompilationService {
     CompilationDto addCompilation(NewCompilationDto compilationDto);
 

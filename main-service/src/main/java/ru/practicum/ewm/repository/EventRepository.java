@@ -8,6 +8,10 @@ import ru.practicum.ewm.model.Event;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Интерфейс EventRepository, представляющий репозиторий для работы с сущностью Event.
+ * Расширяет JpaRepository для наследования базовых методов работы с базой данных.
+ */
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
     Optional<Event> findByInitiatorIdAndId(Long userId, Long eventId);

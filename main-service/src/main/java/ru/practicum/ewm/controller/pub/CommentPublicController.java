@@ -17,8 +17,17 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping(path = "/comments")
 public class CommentPublicController {
+
     private final CommentService commentService;
 
+    /**
+     * Получает список всех комментариев своего события по его идентификатору со страницами.
+     *
+     * @param eventId идентификатор события
+     * @param from    начальная позиция списка (по умолчанию: 0, значение должно быть неотрицательным)
+     * @param size    размер страницы (по умолчанию: 10, значение должно быть положительным)
+     * @return список объектов Comment с информацией о комментариях
+     */
     @GetMapping("/{eventId}")
     public List<Comment> getRequestListAllCommentsEvent(@PathVariable Long eventId,
                                                         @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,

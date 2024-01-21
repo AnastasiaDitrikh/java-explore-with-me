@@ -11,9 +11,11 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class UpdateCompilationDto {
+
     private Long id;
     private Set<Long> events;
     private Boolean pinned;
+
     @Size(max = 50)
     private String title;
 }

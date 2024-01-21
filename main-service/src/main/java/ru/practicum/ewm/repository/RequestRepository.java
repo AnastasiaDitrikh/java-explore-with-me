@@ -7,6 +7,10 @@ import ru.practicum.ewm.model.enums.RequestStatus;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Интерфейс RequestRepository, представляющий репозиторий для работы с сущностью Request.
+ * Расширяет JpaRepository для наследования базовых методов работы с базой данных.
+ */
 public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findAllByEventId(Long eventId);
 

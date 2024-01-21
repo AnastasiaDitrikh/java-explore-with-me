@@ -10,8 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Класс EventMapper служит для преобразования объектов Event и связанных с ними DTO.
+ */
 @UtilityClass
 public class EventMapper {
+
+    /**
+     * Преобразует объект класса NewEventDto в объект класса Event.
+     *
+     * @param newEventDto объект класса NewEventDto, который требуется преобразовать
+     * @return объект класса Event, созданный в результате преобразования
+     */
     public Event toEvent(NewEventDto newEventDto) {
         return Event.builder()
                 .id(null)
@@ -26,6 +36,12 @@ public class EventMapper {
                 .build();
     }
 
+    /**
+     * Преобразует объект класса Event в объект класса EventFullDto.
+     *
+     * @param event объект класса Event, который требуется преобразовать
+     * @return объект класса EventFullDto, созданный в результате преобразования
+     */
     public EventFullDto toEventFullDto(Event event) {
         return EventFullDto.builder()
                 .id(event.getId())
@@ -45,6 +61,12 @@ public class EventMapper {
                 .build();
     }
 
+    /**
+     * Преобразует объект класса Event в объект класса EventShortDto.
+     *
+     * @param event объект класса Event, который требуется преобразовать
+     * @return объект класса EventShortDto, созданный в результате преобразования
+     */
     public EventShortDto toEventShortDto(Event event) {
         return EventShortDto.builder()
                 .id(event.getId())
@@ -57,6 +79,12 @@ public class EventMapper {
                 .build();
     }
 
+    /**
+     * Преобразует список объектов класса Event в список объектов класса EventShortDto.
+     *
+     * @param events список объектов класса Event, который требуется преобразовать
+     * @return список объектов класса EventShortDto, созданный в результате преобразования
+     */
     public List<EventShortDto> eventToEventShortDtoList(List<Event> events) {
         return events == null ? new ArrayList<>() :
                 events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());

@@ -8,6 +8,9 @@ import ru.practicum.ewm.model.Comment;
 
 import java.util.List;
 
+/**
+ * Интерфейс CommentService, определяющий методы для работы с комментариями
+ */
 public interface CommentService {
     CommentDto createComment(Long userId, Long eventId, NewCommentDto commentDto);
 

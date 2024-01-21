@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CountCommentsByEventDto {
+
     private Long eventId;
     private Long countComments;
 }

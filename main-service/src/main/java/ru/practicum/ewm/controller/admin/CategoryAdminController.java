@@ -12,14 +12,24 @@ import ru.practicum.ewm.service.CategoryService;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 
+/**
+ * Контроллер для администрирования категорий.
+ */
 @Slf4j
 @Validated
 @RestController
 @RequestMapping(path = "/admin/categories")
 @RequiredArgsConstructor
 public class CategoryAdminController {
+
     private final CategoryService categoryService;
 
+    /**
+     * Обрабатывает POST запрос на создание новой категории.
+     *
+     * @param newCategoryDto - объект данных новой категории
+     * @return объект CategoryDto с информацией о созданной категории
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto createCategory(@RequestBody @Valid NewCategoryDto newCategoryDto) {
@@ -27,6 +37,11 @@ public class CategoryAdminController {
         return categoryService.addNewCategory(newCategoryDto);
     }
 
+    /**
+     * Обрабатывает DELETE запрос на удаление категории по ее ID.
+     *
+     * @param catId - ID категории, которую нужно удалить
+     */
     @DeleteMapping("/{catId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable Long catId) {
@@ -34,6 +49,13 @@ public class CategoryAdminController {
         categoryService.deleteCategoryById(catId);
     }
 
+    /**
+     * Обрабатывает PATCH запрос на обновление категории по ее ID.
+     *
+     * @param catId       - ID категории, которую нужно обновить
+     * @param categoryDto - объект данных обновленной категории
+     * @return объект CategoryDto с информацией об обновленной категории
+     */
     @PatchMapping("/{catId}")
     public CategoryDto updateCategory(@PathVariable(value = "catId") @Min(1) Long catId,
                                       @RequestBody @Valid CategoryDto categoryDto) {

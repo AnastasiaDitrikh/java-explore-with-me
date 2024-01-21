@@ -5,7 +5,9 @@ import ru.practicum.ewm.dto.category.NewCategoryDto;
 
 import java.util.List;
 
-
+/**
+ * Интерфейс CategoryService, определяющий методы для работы с категориями
+ */
 public interface CategoryService {
     List<CategoryDto> getCategories(Integer from, Integer size);
 

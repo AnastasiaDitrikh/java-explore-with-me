@@ -18,8 +18,17 @@ import java.util.List;
 @Validated
 @Slf4j
 public class CompilationPublicController {
+
     private final CompilationService compilationService;
 
+    /**
+     * Получает список подборок со страницами.
+     *
+     * @param pinned флаг "закреплено" (необязательный параметр)
+     * @param from   начальная позиция списка (по умолчанию: 0, значение должно быть неотрицательным)
+     * @param size   размер страницы (по умолчанию: 10, значение должно быть положительным)
+     * @return список объектов CompilationDto с информацией о подборках
+     */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<CompilationDto> getCompilations(
@@ -29,6 +38,12 @@ public class CompilationPublicController {
         return compilationService.getCompilations(pinned, from, size);
     }
 
+    /**
+     * Получает информацию о подборке по ее идентификатору.
+     *
+     * @param compId идентификатор подборки
+     * @return объект CompilationDto с информацией о подборке
+     */
     @GetMapping("/{compId}")
     public CompilationDto findByIdCompilation(@PathVariable Long compId) {
         log.info("GET запрос на удаление подборки событий");

@@ -23,8 +23,16 @@ import java.util.List;
 @Validated
 @RequestMapping(path = "/events")
 public class EventPublicController {
+
     private final EventService eventService;
 
+    /**
+     * Получает список всех событий с применением фильтра.
+     *
+     * @param searchEventParams параметры фильтрации для поиска событий
+     * @param request           объект HttpServletRequest
+     * @return список объектов EventShortDto с информацией о событиях
+     */
     @GetMapping
     public List<EventShortDto> getAllEvents(@Valid SearchEventParams searchEventParams,
                                             HttpServletRequest request) {
@@ -32,6 +40,13 @@ public class EventPublicController {
         return eventService.getAllEventFromPublic(searchEventParams, request);
     }
 
+    /**
+     * Получает полную информацию о событии по его идентификатору.
+     *
+     * @param eventId идентификатор события (минимальное значение: 1)
+     * @param request объект HttpServletRequest
+     * @return объект EventFullDto с полной информацией о событии
+     */
     @GetMapping("/{eventId}")
     public EventFullDto getEventById(@PathVariable(value = "eventId") @Min(1) Long eventId,
                                      HttpServletRequest request) {

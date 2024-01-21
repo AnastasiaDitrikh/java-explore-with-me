@@ -6,6 +6,9 @@ import ru.practicum.ewm.dto.request.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+/**
+ * Интерфейс EventService, определяющий методы для работы с событиями
+ */
 public interface EventService {
 
     List<EventFullDto> getAllEventFromAdmin(SearchEventParamsAdmin searchEventParamsAdmin);

@@ -14,8 +14,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/comments")
 public class CommentAdminController {
+
     private final CommentService commentService;
 
+    /**
+     * Обрабатывает DELETE запрос на удаление комментария по его ID.
+     *
+     * @param commentId - ID комментария, который нужно удалить
+     */
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable Long commentId) {
@@ -23,6 +29,14 @@ public class CommentAdminController {
         commentService.deleteCommentByAdmin(commentId);
     }
 
+    /**
+     * Обрабатывает GET запрос на поиск комментариев по тексту.
+     *
+     * @param text - текст для поиска комментариев
+     * @param from - начальный индекс для пагинации (по умолчанию 0)
+     * @param size - количество записей на страницу для пагинации (по умолчанию 10)
+     * @return список объектов Comment с найденными комментариями
+     */
     @GetMapping("/search")
     public List<Comment> searchComments(@RequestParam(name = "text") String text,
                                         @RequestParam(value = "from", defaultValue = "0") Integer from,

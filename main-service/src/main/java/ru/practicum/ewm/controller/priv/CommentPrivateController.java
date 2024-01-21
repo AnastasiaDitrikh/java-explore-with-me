@@ -18,8 +18,17 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CommentPrivateController {
+
     private final CommentService commentService;
 
+    /**
+     * Обрабатывает POST запрос на добавление нового комментария от пользователя к событию.
+     *
+     * @param userId - ID пользователя
+     * @param eventId - ID события, к которому добавляется комментарий
+     * @param newCommentDto - объект данных нового комментария
+     * @return объект CommentDto с информацией о созданном комментарии
+     */
     @PostMapping("/users/{userId}/events/{eventId}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommentDto addComment(@PathVariable Long userId,
@@ -29,6 +38,14 @@ public class CommentPrivateController {
         return commentService.createComment(userId, eventId, newCommentDto);
     }
 
+    /**
+     * Обрабатывает PATCH запрос на обновление комментария пользователем по его ID.
+     *
+     * @param userId - ID пользователя
+     * @param commentId - ID комментария, который нужно обновить
+     * @param updateCommentDto - объект данных для обновления комментария
+     * @return объект CommentDto с обновленной информацией о комментарии
+     */
     @PatchMapping("/users/{userId}/{commentId}")
     public CommentDto patchRequestByUser(@PathVariable Long userId, @PathVariable Long commentId,
                                          @Valid @RequestBody UpdateCommentDto updateCommentDto) {
@@ -37,12 +54,24 @@ public class CommentPrivateController {
         return commentService.patchByUser(userId, commentId, updateCommentDto);
     }
 
+    /**
+     * Обрабатывает GET запрос на получение списка комментариев, созданных пользователем.
+     *
+     * @param userId - ID пользователя
+     * @return список объектов CommentDto с информацией о комментариях пользователя
+     */
     @GetMapping("/users/{userId}/comments")
     public List<CommentDto> getRequestListUser(@PathVariable Long userId) {
         log.info("GET запрос на получение комментариев пользователя с userId = {} ", userId);
         return commentService.getCommentUser(userId);
     }
 
+    /**
+     * Обрабатывает DELETE запрос на удаление комментария пользователем по его ID.
+     *
+     * @param userId - ID пользователя
+     * @param commentId - ID комментария, который нужно удалить
+     */
     @DeleteMapping("/users/{userId}/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable Long userId, @PathVariable Long commentId) {
@@ -50,6 +79,13 @@ public class CommentPrivateController {
         commentService.deleteComment(userId, commentId);
     }
 
+    /**
+     * Обрабатывает GET запрос на получение комментария пользователя по его ID.
+     *
+     * @param userId - ID пользователя
+     * @param commentId - ID комментария
+     * @return объект Comment с информацией о комментарии пользователя
+     */
     @GetMapping("/users/{userId}/{commentId}")
     public Comment getComment(@PathVariable Long userId, @PathVariable Long commentId) {
         log.info("GET запрос на получения комментария id = {} пользователем id = {} ", commentId, userId);

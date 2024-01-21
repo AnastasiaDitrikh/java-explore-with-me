@@ -15,10 +15,12 @@ import java.time.LocalDateTime;
 @Builder
 @Entity(name = "comments")
 public class Comment {
+
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "text", nullable = false)
     private String text;
 

@@ -20,9 +20,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
+
     private final CategoryRepository categoryRepository;
     private final EventRepository eventsRepository;
 
+    /**
+     * Возвращает список категорий с пагинацией.
+     *
+     * @param from начальная позиция списка
+     * @param size размер списка
+     * @return список объектов CategoryDto
+     */
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
@@ -30,12 +38,25 @@ public class CategoryServiceImpl implements CategoryService {
                 .stream().map(CategoryMapper::toCategoryDto).collect(Collectors.toList());
     }
 
+    /**
+     * Возвращает категорию по заданному идентификатору.
+     *
+     * @param catId идентификатор категории
+     * @return объект CategoryDto
+     * @throws NotFoundException если категория не найдена
+     */
     @Override
     public CategoryDto getCategoryById(Long catId) {
         Category category = checkCategory(catId);
         return CategoryMapper.toCategoryDto(category);
     }
 
+    /**
+     * Добавляет новую категорию.
+     *
+     * @param newCategoryDto объект NewCategoryDto, содержащий данные новой категории
+     * @return объект CategoryDto новой категории
+     */
     @Override
     public CategoryDto addNewCategory(NewCategoryDto newCategoryDto) {
         Category category = CategoryMapper.toNewCategoryDto(newCategoryDto);
@@ -43,6 +64,13 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toCategoryDto(saveCategory);
     }
 
+    /**
+     * Удаляет категорию по заданному идентификатору.
+     *
+     * @param catId идентификатор категории
+     * @throws NotFoundException если категория не найдена
+     * @throws ConflictException если категория используется в событиях
+     */
     @Override
     public void deleteCategoryById(Long catId) {
         Category category = checkCategory(catId);
@@ -53,6 +81,15 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.deleteById(catId);
     }
 
+    /**
+     * Обновляет информацию о категории по заданному идентификатору.
+     *
+     * @param catId       идентификатор категории
+     * @param categoryDto объект CategoryDto с обновленными данными категории
+     * @return объект CategoryDto обновленной категории
+     * @throws NotFoundException если категория не найдена
+     * @throws ConflictException если новое имя категории уже используется другой категорией
+     */
     @Override
     public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
         Category oldCategory = checkCategory(catId);
@@ -67,13 +104,25 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toCategoryDto(updatedCategory);
     }
 
-
+    /**
+     * Проверяет уникальность имени категории (регистр не учитывается).
+     *
+     * @param name имя категории
+     * @throws ConflictException если категория с таким именем уже существует
+     */
     private void checkUniqNameCategoryIgnoreCase(String name) {
         if (categoryRepository.existsByNameIgnoreCase(name)) {
             throw new ConflictException(("Категория " + name + " уже существует"));
         }
     }
 
+    /**
+     * Проверяет существование категории по заданному идентификатору.
+     *
+     * @param catId идентификатор категории
+     * @return объект Category категории
+     * @throws NotFoundException если категория не найдена
+     */
     private Category checkCategory(Long catId) {
         return categoryRepository.findById(catId).orElseThrow(() ->
                 new NotFoundException("Категории с id = " + catId + " не существует"));

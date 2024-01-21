@@ -23,9 +23,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
+
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
+    /**
+     * Добавляет новую подборку
+     *
+     * @param compilationDto объект NewCompilationDto, содержащий данные новой подборки
+     * @return объект CompilationDto новой подборки
+     */
     @Transactional
     @Override
     public CompilationDto addCompilation(NewCompilationDto compilationDto) {
@@ -42,11 +49,17 @@ public class CompilationServiceImpl implements CompilationService {
         return CompilationMapper.toDto(compilationAfterSave);
     }
 
+    /**
+     * Обновляет информацию о подборке по заданному идентификатору.
+     *
+     * @param compId идентификатор подборки
+     * @param update объект UpdateCompilationDto с обновленными данными подборки
+     * @return объект CompilationDto обновленной подборки
+     */
     @Transactional
     @Override
     public CompilationDto updateCompilation(Long compId, UpdateCompilationDto update) {
         Compilation compilation = checkCompilation(compId);
-
         Set<Long> eventIds = update.getEvents();
 
         if (eventIds != null) {
@@ -56,14 +69,20 @@ public class CompilationServiceImpl implements CompilationService {
         }
 
         compilation.setPinned(Optional.ofNullable(update.getPinned()).orElse(compilation.getPinned()));
+
         if (compilation.getTitle().isBlank()) {
             throw new UncorrectedParametersException("Title не может состоять из пробелов");
         }
-        compilation.setTitle(Optional.ofNullable(update.getTitle()).orElse(compilation.getTitle()));
 
+        compilation.setTitle(Optional.ofNullable(update.getTitle()).orElse(compilation.getTitle()));
         return CompilationMapper.toDto(compilation);
     }
 
+    /**
+     * Удаляет подборку по заданному идентификатору.
+     *
+     * @param compId идентификатор подборки
+     */
     @Transactional
     @Override
     public void deleteCompilation(Long compId) {
@@ -71,11 +90,20 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.deleteById(compId);
     }
 
+    /**
+     * Возвращает список подборок с пагинацией и возможностью фильтрации по прикрепленности.
+     *
+     * @param pinned флаг прикрепленности (null - все подборки)
+     * @param from   начальная позиция списка
+     * @param size   размер списка
+     * @return список объектов CompilationDto подборок
+     */
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
 
         PageRequest pageRequest = PageRequest.of(from, size);
         List<Compilation> compilations;
+
         if (pinned == null) {
             compilations = compilationRepository.findAll(pageRequest).getContent();
         } else {
@@ -87,12 +115,24 @@ public class CompilationServiceImpl implements CompilationService {
                 .collect(Collectors.toList());
     }
 
-
+    /**
+     * Возвращает подборку по заданному идентификатору.
+     *
+     * @param compId идентификатор подборки
+     * @return объект CompilationDto подборки
+     */
     @Override
     public CompilationDto findByIdCompilation(Long compId) {
         return CompilationMapper.toDto(checkCompilation(compId));
     }
 
+    /**
+     * Проверяет существование подборки по заданному идентификатору.
+     *
+     * @param compId идентификатор подборки
+     * @return объект Compilation подборки
+     * @throws NotFoundException если подборки не найдена
+     */
     private Compilation checkCompilation(Long compId) {
         return compilationRepository.findById(compId).orElseThrow(
                 () -> new NotFoundException("Compilation с id = " + compId + " не найден"));
