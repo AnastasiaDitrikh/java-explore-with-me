@@ -51,15 +51,12 @@ Java, Spring (Boot, Data), PostgreSQL, REST API, Docker, Mockito, JUnit, Postman
 - GET /users/{userId}/events/{eventId}/requests - получить запросы пользователя на участие в событии
 - PATCH /users/{userId}/events/{eventId}/requests - изменить статус (подтверждение, отмена) заявок на участие
   пользователя в событии
-  <br>
 
 - GET /categories - получить все категории
 - GET /categories/{catId} - получить категорию
-  <br>
 
 - GET /compilations - получить все подборки событий
 - GET /compilations/{compId} - получить подборку событий
-  <br>
 
 - GET /admin/events - получить события по любым параметрам:
     - users - список id пользователей
@@ -70,7 +67,6 @@ Java, Spring (Boot, Data), PostgreSQL, REST API, Docker, Mockito, JUnit, Postman
     - from - параметр для пагинации
     - size - параметр для пагинации
 - PATCH /admin/events/{eventId} - изменить событие
-  <br>
 
 - GET /events - получить события по любым параметрам:
     - text - текст для поиска в названии и описании событий
@@ -83,7 +79,6 @@ Java, Spring (Boot, Data), PostgreSQL, REST API, Docker, Mockito, JUnit, Postman
     - from - параметр для пагинации
     - size - параметр для пагинации
 - GET /events/{id} - получить событие
-  <br>
 
 - GET /comments/{eventId} - Получает список всех комментариев события по его идентификатору со страницами
 - POST /comments/users/{userId}/events/{eventId} - запрос на добавление нового комментария от пользователя к событию
@@ -91,12 +86,10 @@ Java, Spring (Boot, Data), PostgreSQL, REST API, Docker, Mockito, JUnit, Postman
 - GET /comments/users/{userId}/comments - запрос на получение списка комментариев, созданных пользователем
 - DELETE /comments/users/{userId}/{commentId} - запрос на удаление комментария пользователем по его ID
 - GET /comments/users//{userId}/{commentId} - запрос на получение комментария пользователя по его ID
-  <br>
 
 - POST /users/{userId}/requests - добавить запрос на участие в событии
 - GET /users/{userId}/requests - получить запросы пользователя на участие в событиях
 - DELETE /users/{userId}/requests/{requestId}/cancel - отменить запрос на участие в событии
-  <br>
 
 - POST /admin/users - добавить пользователя
 - GET /admin/users - получить всех пользователей
