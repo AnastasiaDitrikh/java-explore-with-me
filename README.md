@@ -98,14 +98,6 @@ Java, Spring (Boot, Data), PostgreSQL, REST API, Docker, Mockito, JUnit, Postman
 - DELETE /users/{userId}/requests/{requestId}/cancel - отменить запрос на участие в событии
   <br>
 
-- POST /users/{userId}/events/{eventId}/comments - добавить комментарий к событию
-- PATCH /users/{userId}/events/{eventId}/comments/{commentId} - обновить комментарий
-- GET /users/{userId}/events/{eventId}/comments/{commentId} - получить комментарий к событию
-- DELETE /users/{userId}/events/{eventId}/comments/{commentId} - удалить комментарий к событию
-- GET /users/{userId}/events/{eventId}/comments - получить список комментариев пользователя к событию
-- GET /users/{userId}/comments - получить все комментарии пользователя
-  <br>
-
 - POST /admin/users - добавить пользователя
 - GET /admin/users - получить всех пользователей
 - DELETE /admin/users/{userId} - удалить пользователя
