@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity(name = "stats")
 public class EndpointHitModel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

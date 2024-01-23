@@ -15,13 +15,22 @@ import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Контроллер для обработки запросов связанных со статистикой.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class StatsController {
+
     private final StatsService service;
 
+    /**
+     * Обработка POST-запроса на сохранение информации о хите на эндпоинт.
+     *
+     * @param hit объект EndpointHit, содержащий информацию о хите
+     */
     @PostMapping("/hit")
     @ResponseStatus(code = HttpStatus.CREATED)
     public void hit(@RequestBody EndpointHit hit) {
@@ -29,6 +38,16 @@ public class StatsController {
         service.saveHit(hit);
     }
 
+    /**
+     * Обработка GET-запроса на получение статистики просмотров.
+     *
+     * @param start  начальная дата и время периода статистики
+     * @param end    конечная дата и время периода статистики
+     * @param uris   список URI для фильтрации статистики
+     * @param unique флаг, указывающий нужно ли получить уникальные просмотры
+     * @return список объектов ViewStats, содержащих статистику просмотров
+     * @throws InvalidParameterException если переданы некорректные параметры запроса
+     */
     @GetMapping("/stats")
     public List<ViewStats> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
@@ -45,7 +64,6 @@ public class StatsController {
                         .end(end)
                         .uris(uris)
                         .unique(unique)
-                        .build()
-        );
+                        .build());
     }
 }

@@ -11,10 +11,19 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.security.InvalidParameterException;
 
+/**
+ * Обработчик ошибок.
+ */
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
+    /**
+     * Обработчик исключений, связанных с некорректными параметрами запроса.
+     *
+     * @param e исключение, вызванное некорректными параметрами запроса
+     * @return объект ErrorResponse с информацией об ошибке
+     */
     @ExceptionHandler({MethodArgumentNotValidException.class, InvalidParameterException.class, MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleRequestFailedException(Exception e) {
@@ -22,6 +31,12 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    /**
+     * Обработчик других исключений.
+     *
+     * @param e исключение
+     * @return объект ErrorResponse с информацией об ошибке
+     */
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handlerOtherException(Throwable e) {

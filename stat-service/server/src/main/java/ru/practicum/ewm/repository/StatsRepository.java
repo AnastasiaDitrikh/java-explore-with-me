@@ -6,6 +6,9 @@ import ru.practicum.ewm.ViewsStatsRequest;
 
 import java.util.List;
 
+/**
+ * Интерфейс для работы с репозиторием статистики.
+ */
 public interface StatsRepository {
     void saveHit(EndpointHit hit);
 
